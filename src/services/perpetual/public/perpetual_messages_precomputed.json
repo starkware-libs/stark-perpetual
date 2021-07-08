@@ -1,0 +1,54 @@
+{
+    "limit_order": {
+        "0x2eb156da69980db458ab9a1950073d51edc5b2393a49a9de550375076d9c104": {
+            "assetIdSynthetic": 1,
+            "assetIdCollateral": 1,
+            "isBuyingSynthetic": 1,
+            "assetIdFee": 1,
+            "amountSynthetic": 1,
+            "amountCollateral": 1,
+            "amountFee": 1,
+            "nonce": 1,
+            "positionId": 1,
+            "expirationTimestamp": 1
+        }
+    },
+    "withdrawal": {
+        "0x6fbdeabb5ee89169df22d8db706f33ae7676b215803fe78645a968774dc7f62": {
+            "assetIdCollateral": 1,
+            "positionId": 10,
+            "nonce": 0,
+            "expirationTimestamp": 100,
+            "amount": 1000
+        }
+    },
+    "transfer": {
+        "0x372aa6e519559b48b02a29eeafed55daa9ca8462153fd22d29f41d6fab10171": {
+            "assetId": 1,
+            "assetIdFee": 0,
+            "receiverPublicKey": 1,
+            "senderPositionId": 1,
+            "receiverPositionId": 1,
+            "feePositionId": 1,
+            "nonce": 0,
+            "amount": 1000,
+            "maxAmountFee": 10,
+            "expirationTimestamp": 100
+        }
+    },
+    "conditional_transfer": {
+        "0x2528152bfb0f1d091385c710b47d7688c3b55645e8f3132ad1e203193e8f521": {
+            "assetId": 1,
+            "assetIdFee": 0,
+            "receiverPublicKey": 1,
+            "condition": 4,
+            "senderPositionId": 1,
+            "receiverPositionId": 2,
+            "srcFeePositionId": 3,
+            "nonce": 10,
+            "amount": 1001,
+            "maxAmountFee": 10,
+            "expirationTimestamp": 112
+        }
+    }
+}

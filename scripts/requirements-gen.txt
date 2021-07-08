@@ -1,0 +1,10 @@
+ecdsa
+eth-hash[pycryptodome]==0.2.0
+fastecdsa
+mpmath
+mypy-extensions
+pipdeptree
+pytest
+sympy
+web3
+PyYAML>=5.3.1,<5.4
