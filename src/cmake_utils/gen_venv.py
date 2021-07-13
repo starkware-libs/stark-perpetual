@@ -103,7 +103,10 @@ def main():
         '/usr/bin',
         '/usr/local/bin',
     ]
-    python_exec = shutil.which(args.python, path=':'.join(lookup_paths))
+    python_exec = (
+        shutil.which(args.python, path=':'.join(lookup_paths)) or
+        shutil.which(args.python)
+    )
     # Prepare an empty virtual environment in the background.
     # --symlinks prefers symlinks of copying.
     # --without-pip installs a completely empty venv, with no pip.
