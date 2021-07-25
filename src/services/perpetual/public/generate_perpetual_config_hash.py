@@ -28,13 +28,17 @@ import sys
 
 import yaml
 
+from services.perpetual.public.definitions.constants import ASSET_ID_UPPER_BOUND
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 
 CONFIG_FILE_NAME = 'production_general_config.yml'
 HASH_BYTES = 32
 
+ASSET_ID_BYTES = 15
+assert 2 ** (ASSET_ID_BYTES * 8) == ASSET_ID_UPPER_BOUND
 
-def str2int(val):
+
+def str2int(val: str) -> int:
     """
     Converts a decimal or hex string into an int.
     Also accepts an int and returns it unchanged.
@@ -48,11 +52,21 @@ def str2int(val):
     return int(val, 10)
 
 
-def bytes2str(val):
+def bytes2str(val: bytes) -> str:
     """
     Converts a bytes into a hex string.
     """
     return f'0x{val.hex()}'
+
+
+def pad_hex_string(val: str, bytes_len: int) -> str:
+    """
+    Pads a hex string with leading zeros to match a length of bytes_len.
+    """
+    assert val[:2] == '0x'
+    val_nibbles_len = (len(val) - 2)
+    assert val_nibbles_len <= 2 * bytes_len
+    return f'0x{"0" * (2 * bytes_len - val_nibbles_len)}{val[2:]}'
 
 
 def calculate_general_config_hash(config: dict) -> bytes:
@@ -145,7 +159,8 @@ def generate_config_hashes(config: dict) -> str:
     for asset_id in config['synthetic_assets_info'].keys():
         config_hash_bytes = calculate_asset_hash(config=config, asset_id=asset_id)
         config_hash_hex = bytes2str(config_hash_bytes)
-        output += f'asset_id: {int(asset_id, 16)}, config_hash: {config_hash_hex}\n'
+        asset_id_padded = pad_hex_string(asset_id, ASSET_ID_BYTES)
+        output += f'asset_id: {asset_id_padded}, config_hash: {config_hash_hex}\n'
     output += '\n'
     return output
 

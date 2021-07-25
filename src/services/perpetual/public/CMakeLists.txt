@@ -3,7 +3,7 @@ python_lib(perpetual_public_lib
 
     FILES
     perpetual_messages.py
-    public_generate_perpetual_config_hash.py
+    generate_perpetual_config_hash.py
     stark_cli.py
 
     LIBS
