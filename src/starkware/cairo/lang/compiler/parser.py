@@ -17,7 +17,16 @@ from starkware.cairo.lang.compiler.parser_transformer import ParserError, Parser
 grammar_file = os.path.join(os.path.dirname(__file__), 'cairo.ebnf')
 gram_parser = lark.Lark(
     open(grammar_file, 'r').read(),
-    start=['cairo_file', 'repl'],
+    start=[
+        'cairo_file',
+        'code_block',
+        'code_element',
+        'expr',
+        'instruction',
+        'repl',
+        'type',
+        'typed_identifier',
+    ],
     lexer='standard',
     propagate_positions=True)
 
@@ -77,13 +86,14 @@ def wrap_lark_error(err: LarkError, input_file: InputFile) -> Exception:
             'STAR': '"*"',
         }
         expected_lst = sorted(TOKENS.get(x, x) for x in expected)
+        err_token = err.token  # type: ignore
         if len(expected_lst) > 1:
             err_str = \
-                f'Unexpected token {repr(err.token)}. Expected one of: {", ".join(expected_lst)}.'
+                f'Unexpected token {repr(err_token)}. Expected one of: {", ".join(expected_lst)}.'
         else:
-            err_str = f'Unexpected token {repr(err.token)}. Expected: {", ".join(expected_lst)}.'
+            err_str = f'Unexpected token {repr(err_token)}. Expected: {", ".join(expected_lst)}.'
 
-        line, col, width = err.line, err.column, len(err.token)
+        line, col, width = err.line, err.column, len(err_token)
     elif isinstance(err, UnexpectedCharacters):
         line, col, width = err.line, err.column, 1
         # Make sure line and col make sense.
@@ -133,7 +143,7 @@ def lex(code: str) -> List[lark.lexer.Token]:
     """
     Runs the lexer on the given code and returns the lark-parser tokens.
     """
-    return gram_parser.lex(code)
+    return (gram_parser.lex(code))
 
 
 def parse_file(code: str, filename: str = '<string>') -> CairoFile:

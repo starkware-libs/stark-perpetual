@@ -213,3 +213,14 @@ def composite(*funcs):
             return_value = func(return_value)
         return return_value
     return composition_function
+
+
+def all_subclasses(cls: type) -> List[type]:
+    """
+    Recursively finds all subclasses of a given class.
+    """
+    return list(set(_all_subclasses(cls)))
+
+
+def _all_subclasses(cls: type) -> List[type]:
+    return sum([_all_subclasses(subclass) for subclass in cls.__subclasses__()], [cls])

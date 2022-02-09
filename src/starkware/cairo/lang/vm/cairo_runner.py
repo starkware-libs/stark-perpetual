@@ -459,6 +459,8 @@ pc = {pc}
 ap = {ap}
 fp = {fp}
     """)
+
+    def print_segment_relocation_table(self):
         if self.segment_offsets is not None:
             print('Segment relocation table:')
             for segment_index in range(self.segments.n_segments):

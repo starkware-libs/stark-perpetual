@@ -67,6 +67,9 @@ def main():
         '--print_info', action='store_true',
         help='Print information on the execution of the program.')
     parser.add_argument(
+        '--print_segments', action='store_true',
+        help='Print the segment relocation table.')
+    parser.add_argument(
         '--print_output', action='store_true',
         help='Prints the program output (if the output builtin is used).')
     parser.add_argument(
@@ -276,6 +279,9 @@ def cairo_run(args):
         # from opening the tracer.
         if args.proof_mode and not args.no_end:
             runner.print_builtin_usage()
+
+    if args.print_segments:
+        runner.print_segment_relocation_table()
 
     if trace_file is not None:
         field_bytes = math.ceil(program.prime.bit_length() / 8)
