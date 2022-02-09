@@ -5,7 +5,7 @@ from services.perpetual.cairo.output.forced import ForcedAction, forced_action_s
 from services.perpetual.cairo.state.state import SharedState, shared_state_serialize
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.memcpy import memcpy
-from starkware.cairo.common.registers import get_fp_and_pc
+from starkware.cairo.common.registers import get_fp_and_pc, get_label_location
 from starkware.cairo.common.serialize import serialize_array, serialize_word
 
 # Represents an external modification to the amount of collateral in a position (Deposit or
@@ -55,6 +55,8 @@ func program_output_new(
         n_forced_actions, forced_actions : ForcedAction*, n_conditions, conditions : felt*) -> (
         program_output : ProgramOutput*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a ProgramOutput object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (program_output=cast(fp_val - 2 - ProgramOutput.SIZE, ProgramOutput*))
 end
 
@@ -73,6 +75,8 @@ func perpetual_outputs_new(
         conditions_ptr : felt*, funding_indices_table_ptr : FundingIndicesInfo**) -> (
         outputs : PerpetualOutputs*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a PerpetualOutputs object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (outputs=cast(fp_val - 2 - PerpetualOutputs.SIZE, PerpetualOutputs*))
 end
 
@@ -97,31 +101,34 @@ func program_output_serialize{output_ptr : felt*}(program_output : ProgramOutput
     local __pc__ = __pc__
 
     serialize_word(program_output.general_config_hash)
+    let (callback_address) = get_label_location(asset_config_hash_serialize)
     serialize_array(
         array=program_output.asset_configs,
         n_elms=program_output.n_asset_configs,
         elm_size=AssetConfigHashEntry.SIZE,
-        callback=asset_config_hash_serialize + __pc__ - ret_pc_label)
+        callback=callback_address)
     shared_state_serialize(program_output.prev_shared_state)
     shared_state_serialize(program_output.new_shared_state)
 
     serialize_word(program_output.minimum_expiration_timestamp)
 
     # Modifications.
+    let (callback_address) = get_label_location(modification_serialize)
     serialize_array(
         array=program_output.modifications,
         n_elms=program_output.n_modifications,
         elm_size=Modification.SIZE,
-        callback=modification_serialize + __pc__ - ret_pc_label)
+        callback=callback_address)
     # Forced actions.
     # Save a cell for total size of forced actions.
     local forced_actions_size_output_ptr : felt* = output_ptr
     let output_ptr = output_ptr + 1
+    let (callback_address) = get_label_location(forced_action_serialize)
     serialize_array(
         array=program_output.forced_actions,
         n_elms=program_output.n_forced_actions,
         elm_size=ForcedAction.SIZE,
-        callback=forced_action_serialize + __pc__ - ret_pc_label)
+        callback=callback_address)
     # output_ptr - forced_actions_size_output_ptr is the size of written data including
     # forced_actions_size and n_forced_actions.
     let data_size = cast(output_ptr, felt) - cast(forced_actions_size_output_ptr, felt) - 2

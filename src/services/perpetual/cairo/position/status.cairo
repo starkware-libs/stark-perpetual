@@ -17,13 +17,12 @@ func position_get_status_inner(
         range_check_ptr, assets : PositionAsset*, n_assets, oracle_prices : OraclePrices*,
         general_config : GeneralConfig*, total_value_rep, total_risk_rep) -> (
         range_check_ptr, total_value_rep, total_risk_rep):
-    jmp body if n_assets != 0
-    return (
-        range_check_ptr=range_check_ptr,
-        total_value_rep=total_value_rep,
-        total_risk_rep=total_risk_rep)
-
-    body:
+    if n_assets == 0:
+        return (
+            range_check_ptr=range_check_ptr,
+            total_value_rep=total_value_rep,
+            total_risk_rep=total_risk_rep)
+    end
     alloc_locals
     let current_asset : PositionAsset* = assets
     local asset_id = current_asset.asset_id

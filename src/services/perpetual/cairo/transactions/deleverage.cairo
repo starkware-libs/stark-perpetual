@@ -31,8 +31,8 @@ func execute_deleverage(
         carried_state : CarriedState*, outputs : PerpetualOutputs*):
     alloc_locals
 
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_synthetic, AMOUNT_UPPER_BOUND)
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_collateral, AMOUNT_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_synthetic, AMOUNT_UPPER_BOUND - 1)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_collateral, AMOUNT_UPPER_BOUND - 1)
 
     %{ error_code = ids.PerpetualErrorCode.SAME_POSITION_ID %}
     # Assert that the deleverager position and the deleveragable position are distinct.
@@ -117,12 +117,18 @@ func execute_deleverage(
     # Validates that deleverage ratio for the deleverager is the maximal it can be while being valid
     # for the deleveragable. In other words, validates that if we reduce the collateral the
     # deleveragable gets from the transaction by 1, the transaction is invalid.
+    # The validation that the transaction is currently valid is done in update_position_in_dict.
     let (range_check_ptr, updated_tv, updated_tr, return_code) = position_get_status(
         range_check_ptr=range_check_ptr,
         position=deleveragable_updated_position,
         oracle_prices=carried_state.oracle_prices,
         general_config=batch_config.general_config)
     assert_success(return_code)
+    # We want to check that (updated_tv - FXP_32_ONE) / updated_tr < initial_tv / initial_tr.
+    # This condition is equivalent to the condition checked by the code below.
+
+    # We check that updated_tv / updated_tr >= initial_tv / initial_tr in update_position_in_dict.
+
     # tv0 / tr0 > tv1 / tr1 <=> tv0 * tr1 > tv1 * tr0.
     # tv is 96 bit.
     # tr is 128 bit.

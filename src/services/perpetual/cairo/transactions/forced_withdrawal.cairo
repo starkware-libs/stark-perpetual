@@ -33,7 +33,7 @@ func execute_forced_withdrawal(
     # Note: We don't mind failing here even when is_valid is 0, since the amount and the position_id
     # should be verified on-chain when a user makes the forced action request.
     %{ error_code = ids.PerpetualErrorCode.OUT_OF_RANGE_AMOUNT %}
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount, AMOUNT_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount, AMOUNT_UPPER_BOUND - 1)
     %{ del error_code %}
 
     # Try to update the position. update_position_in_dict will not update the position if it fails.

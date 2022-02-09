@@ -12,12 +12,12 @@ func hash_chain{hash_ptr : HashBuiltin*}(data_ptr : felt*) -> (hash : felt):
         member cur_hash : felt
     end
 
-    let data_length = ap
-    [data_length] = [data_ptr]; ap++
+    let data_length_ptr = ap
+    [data_length_ptr] = [data_ptr]; ap++
     let loop_frame = cast(ap, LoopLocals*)
 
     # Prepare the loop_frame for the first iteration of the hash_loop.
-    loop_frame.data_ptr = data_ptr + [data_length]; ap++
+    loop_frame.data_ptr = data_ptr + [data_length_ptr]; ap++
     loop_frame.hash_ptr = hash_ptr; ap++
     loop_frame.cur_hash = [loop_frame.data_ptr]; ap++
 

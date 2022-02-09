@@ -36,7 +36,7 @@ func validate_funding_indices_in_general_config_inner(
     end
 end
 
-# Validates that everey asset id in global_funding_indices is in general_config's
+# Validates that every asset id in global_funding_indices is in general_config's
 # synthetic asset info.
 func validate_funding_indices_in_general_config(
         global_funding_indices : FundingIndicesInfo*, general_config : GeneralConfig*):
@@ -105,7 +105,7 @@ func validate_general_config(range_check_ptr, general_config : GeneralConfig*) -
 
     %{ error_code = ids.PerpetualErrorCode.TOO_MANY_SYNTHETIC_ASSETS_IN_SYSTEM %}
     assert_le{range_check_ptr=range_check_ptr}(
-        general_config.n_synthetic_assets_info, N_ASSETS_UPPER_BOUND)
+        general_config.n_synthetic_assets_info, N_ASSETS_UPPER_BOUND - 1)
     %{ del error_code %}
     return (range_check_ptr=range_check_ptr)
 end

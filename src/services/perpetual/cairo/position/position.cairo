@@ -29,6 +29,8 @@ func position_new(
         public_key, collateral_balance, n_assets, assets_ptr : PositionAsset*,
         funding_timestamp) -> (position : Position*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a Position object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (position=cast(fp_val - 2 - Position.SIZE, Position*))
 end
 
@@ -50,6 +52,8 @@ func create_maybe_empty_position(
 
     assign_position:
     let (fp_val, _) = get_fp_and_pc()
+    # We refer to the arguments of this function as a Position object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (position=cast(fp_val - 2 - Position.SIZE, Position*))
 end
 
@@ -87,15 +91,11 @@ func check_valid_balance(range_check_ptr, balance) -> (range_check_ptr, return_c
 end
 
 # Changes the collateral balance of the position by delta. delta may be negative.
+# If the position is empty, the new position will have the given public key.
+# Assumption: Either public_key matches the position, or position is empty.
 func position_add_collateral(range_check_ptr, position : Position*, delta, public_key) -> (
         range_check_ptr, position : Position*, return_code):
     alloc_locals
-    # Verify public_key.
-    let (return_code) = check_request_public_key(
-        position_public_key=position.public_key, request_public_key=public_key)
-    if return_code != PerpetualErrorCode.SUCCESS:
-        return (range_check_ptr=range_check_ptr, position=position, return_code=return_code)
-    end
 
     let (local final_position : Position*) = create_maybe_empty_position(
         public_key=public_key,

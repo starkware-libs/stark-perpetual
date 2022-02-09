@@ -19,25 +19,8 @@ struct LimitOrder:
     member is_buying_synthetic : felt
 end
 
-# limit_order_hash:
 # Computes the hash of a limit order.
-#
-# The hash is defined as h(h(h(h(w1, w2), w3), w4), w5) where h is the
-# starkware pedersen function and w1,...w5 are as follows:
-# w1= token_sell
-# w2= token_buy
-# w3= token_fee
-# w4= amount_sell (64 bit) || amount_buy (64 bit) || amount_fee (64 bit) || nonce (32 bit)
-# w5= 0x3 (10 bit) || vault_fee_src (64 bit) || vault_sell (64 bit) || vault_buy (64 bit)
-#    || expiration_timestamp (32 bit) || 0 (17 bit)
-#
-# Assumptions (bounds defined in services.perpetual.cairo.definitions.constants):
-# amount_sell < AMOUNT_UPPER_BOUND
-# amount_buy < AMOUNT_UPPER_BOUND
-# amount_fee < AMOUNT_UPPER_BOUND
-# nonce < NONCE_UPPER_BOUND
-# position_id < POSITION_ID_UPPER_BOUND
-# expiration_timestamp < EXPIRATION_TIMESTAMP_UPPER_BOUND.
+# See limit_order_hash in services/exchange/cairo/signature_message_hashes for the hash definition.
 func limit_order_hash{pedersen_ptr : HashBuiltin*}(limit_order : LimitOrder*) -> (limit_order_hash):
     alloc_locals
     static_assert POSITION_ID_UPPER_BOUND == VAULT_ID_UPPER_BOUND

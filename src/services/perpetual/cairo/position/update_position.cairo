@@ -4,11 +4,13 @@ from services.perpetual.cairo.definitions.objects import (
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.add_asset import position_add_asset
 from services.perpetual.cairo.position.funding import position_apply_funding
-from services.perpetual.cairo.position.position import Position, position_add_collateral
+from services.perpetual.cairo.position.position import (
+    Position, check_request_public_key, position_add_collateral)
 from services.perpetual.cairo.position.validate_state_transition import check_valid_transition
 from starkware.cairo.common.dict import dict_update
 from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.find_element import search_sorted
+from starkware.cairo.common.math import assert_not_zero
 
 # An asset id representing that no asset id is changed.
 const NO_SYNTHETIC_DELTA_ASSET_ID = -1
@@ -50,7 +52,7 @@ end
 # If the transition is invalid or a failure occured, returns the funded position and a return code
 # reporting the problem.
 # If the given public key is 0, skip the public key validation and validate instead that the
-# position's public key isn't 0.
+# position's public key isn't 0. It can be 0 if both synthetic_delta and collateral_delta are 0.
 # Returns the initial position, the updated position and the initial position after funding was
 # applied.
 func update_position(
@@ -81,14 +83,48 @@ func update_position(
             return_code=return_code)
     end
 
+    # Verify public_key.
     local public_key
+    local range_check_ptr = range_check_ptr
     if request_public_key == 0:
-        # Skip the public key validation by passing the position's public key.
-        public_key = funded_position.public_key
+        # If request_public_key = 0, We'll take the request public key from the current position.
+        if position.public_key == 0:
+            # The current position is empty and we can't take its public key. We need to assert that
+            # the new position is also empty because only in that case we don't need the public key.
+            if synthetic_delta != 0:
+                return (
+                    range_check_ptr=range_check_ptr,
+                    updated_position=funded_position,
+                    funded_position=funded_position,
+                    return_code=PerpetualErrorCode.INVALID_PUBLIC_KEY)
+            end
+            if collateral_delta != 0:
+                return (
+                    range_check_ptr=range_check_ptr,
+                    updated_position=funded_position,
+                    funded_position=funded_position,
+                    return_code=PerpetualErrorCode.INVALID_PUBLIC_KEY)
+            end
+            # There is no change to the position. We can return.
+            return (
+                range_check_ptr=range_check_ptr,
+                updated_position=funded_position,
+                funded_position=funded_position,
+                return_code=PerpetualErrorCode.SUCCESS)
+        end
+        public_key = position.public_key
     else:
+        let (return_code) = check_request_public_key(
+            position_public_key=position.public_key, request_public_key=request_public_key)
+        if return_code != PerpetualErrorCode.SUCCESS:
+            return (
+                range_check_ptr=range_check_ptr,
+                updated_position=funded_position,
+                funded_position=funded_position,
+                return_code=return_code)
+        end
         public_key = request_public_key
     end
-    let public_key = public_key
 
     let (range_check_ptr, updated_position, return_code) = position_add_collateral(
         range_check_ptr=range_check_ptr,
@@ -157,6 +193,7 @@ func update_position_in_dict(
     local initial_position : Position*
     alloc_locals
 
+    # You can find the documentation of the class DictManager in the common library.
     %{ ids.initial_position = __dict_manager.get_dict(ids.positions_dict)[ids.position_id] %}
 
     let (range_check_ptr, updated_position, funded_position, return_code) = update_position(

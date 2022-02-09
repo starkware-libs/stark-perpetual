@@ -305,7 +305,7 @@ func execute_batch(
     let (range_check_ptr, ecdsa_ptr, pedersen_ptr) = check_oracle_prices(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=pedersen_ptr,
+        pedersen_ptr=pedersen_ptr,
         n_oracle_prices=program_input.n_signed_oracle_prices,
         asset_oracle_prices=program_input.signed_min_oracle_prices,
         time_bounds=&time_bounds,
@@ -313,7 +313,7 @@ func execute_batch(
     let (local range_check_ptr, local ecdsa_ptr, local pedersen_ptr) = check_oracle_prices(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=pedersen_ptr,
+        pedersen_ptr=pedersen_ptr,
         n_oracle_prices=program_input.n_signed_oracle_prices,
         asset_oracle_prices=program_input.signed_max_oracle_prices,
         time_bounds=&time_bounds,

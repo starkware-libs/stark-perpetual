@@ -21,14 +21,14 @@ from starkware.cairo.common.math import assert_nn_le, assert_not_equal
 
 struct Transfer:
     member base : OrderBase*
-    member nonce : felt
-    # sender_public_key is the base's public_key.
+    # The nonce is the base's nonce.
+    # The sender_public_key is the base's public_key.
     member sender_position_id : felt
     member receiver_public_key : felt
     member receiver_position_id : felt
     member amount : felt
     member asset_id : felt
-    member expiration_timestamp : felt
+    # The expiration_timestamp is the base's expiration_timestamp.
 end
 
 # See the documentation of transfer_hash under exchange/signature_message_hashes.cairo.

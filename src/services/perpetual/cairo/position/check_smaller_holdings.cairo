@@ -41,6 +41,7 @@ func check_smaller_in_synthetic_holdings_inner(
     end
 
     # Check that updated_balance and initial_balance have the same sign.
+    # They cannot be zero at this point.
     let (success) = is_nn{range_check_ptr=range_check_ptr}(updated_balance * initial_balance)
     if success == 0:
         return (

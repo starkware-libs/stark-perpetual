@@ -4,6 +4,7 @@ from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualE
 from services.perpetual.cairo.position.position import (
     Position, PositionAsset, check_request_public_key, check_valid_balance,
     create_maybe_empty_position)
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.find_element import search_sorted, search_sorted_lower
 from starkware.cairo.common.math import assert_not_equal
 from starkware.cairo.common.memcpy import memcpy
@@ -54,15 +55,23 @@ func add_asset_inner(
         range_check_ptr, end_ptr : PositionAsset*, return_code):
     alloc_locals
     # Split original assets array, around asset_id.
-    let (left_end_ptr : PositionAsset*) = search_sorted_lower{range_check_ptr=range_check_ptr}(
-        array_ptr=assets_ptr, elm_size=PositionAsset.SIZE, n_elms=n_assets, key=asset_id)
     # left_end_ptr is the pointer before current asset.
-    local left_end_ptr : PositionAsset* = left_end_ptr
-    let (right_start_ptr : PositionAsset*) = search_sorted_lower{range_check_ptr=range_check_ptr}(
-        array_ptr=assets_ptr, elm_size=PositionAsset.SIZE, n_elms=n_assets, key=asset_id + 1)
+    let (local left_end_ptr : PositionAsset*) = search_sorted_lower{
+        range_check_ptr=range_check_ptr}(
+        array_ptr=assets_ptr, elm_size=PositionAsset.SIZE, n_elms=n_assets, key=asset_id)
     local range_check_ptr = range_check_ptr
-    # right_start_ptr is the pointer after current asset.
-    local right_start_ptr : PositionAsset* = right_start_ptr
+    # right_start_ptr is the pointer after current asset. It can either be left_end_ptr or the item
+    # after that because the list represents a set.
+    local right_start_ptr : PositionAsset*
+    if left_end_ptr == assets_ptr + n_assets * PositionAsset.SIZE:
+        right_start_ptr = left_end_ptr
+    else:
+        if left_end_ptr.asset_id == asset_id:
+            right_start_ptr = left_end_ptr + PositionAsset.SIZE
+        else:
+            right_start_ptr = left_end_ptr
+        end
+    end
 
     # Auxiliary variables.
     local assets_end_ptr : PositionAsset* = assets_ptr + n_assets * PositionAsset.SIZE
@@ -118,10 +127,13 @@ func add_asset_inner(
 end
 
 # Changes an asset balance of a position by delta. delta may be negative. Handles non existing and
-# empty assets correctly.
+# empty assets correctly. If the position is empty, the new position will have the given public key.
+# Assumption: Either public_key matches the position, or position is empty.
 func position_add_asset(
         range_check_ptr, position : Position*, global_funding_indices : FundingIndicesInfo*,
         asset_id, delta, public_key) -> (range_check_ptr, position : Position*, return_code):
+    alloc_locals
+
     # Allow invalid asset_id when delta == 0.
     if delta == 0:
         return (
@@ -130,16 +142,7 @@ func position_add_asset(
             return_code=PerpetualErrorCode.SUCCESS)
     end
 
-    local res_assets_ptr : PositionAsset*
-    %{ ids.res_assets_ptr = segments.add() %}
-    alloc_locals
-
-    # Verify public_key.
-    let (return_code) = check_request_public_key(
-        position_public_key=position.public_key, request_public_key=public_key)
-    if return_code != PerpetualErrorCode.SUCCESS:
-        return (range_check_ptr=range_check_ptr, position=position, return_code=return_code)
-    end
+    let (local res_assets_ptr : PositionAsset*) = alloc()
 
     # Call add_asset_inner.
     let (local range_check_ptr, end_ptr : PositionAsset*, return_code) = add_asset_inner(

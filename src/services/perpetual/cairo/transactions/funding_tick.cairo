@@ -39,6 +39,8 @@ end
 func validate_funding_tick_inner_args_new(max_funding_rate, timestamp_diff) -> (
         args : ValidateFundingTickInnerArgs*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a ValidateFundingTickInnerArgs object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (
         args=cast(fp_val - 2 - ValidateFundingTickInnerArgs.SIZE, ValidateFundingTickInnerArgs*))
 end
@@ -209,7 +211,7 @@ func execute_funding_tick(
         pedersen_ptr : HashBuiltin*, range_check_ptr, ecdsa_ptr : SignatureBuiltin*,
         carried_state : CarriedState*, outputs : PerpetualOutputs*):
     let new_funding_indices : FundingIndicesInfo* = tx.global_funding_indices
-    # Check that new timestamp is larger than previous system time.
+    # Check that new timestamp is not smaller than previous system time.
     # If signatures will be required to verify OraclePricesTick, then the timestamps for the
     # oracle prices in the carried state will be verified here.
     assert_le{range_check_ptr=range_check_ptr}(

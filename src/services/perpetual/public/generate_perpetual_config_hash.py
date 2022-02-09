@@ -28,6 +28,7 @@ import sys
 
 import yaml
 
+from services.perpetual.definitions.general_config import GENERAL_CONFIG_HASH_VERSION
 from services.perpetual.public.definitions.constants import ASSET_ID_UPPER_BOUND
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 
@@ -103,8 +104,9 @@ def calculate_general_config_hash(config: dict) -> bytes:
     funding_validity_period = timestamp_validation_config['funding_validity_period']
 
     field_values = [
-        max_funding_rate, asset_id, resolution, position_id, public_key, positions_tree_height,
-        orders_tree_height, price_validity_period, funding_validity_period,
+        GENERAL_CONFIG_HASH_VERSION, max_funding_rate, asset_id, resolution,
+        position_id, public_key, positions_tree_height, orders_tree_height, price_validity_period,
+        funding_validity_period,
     ]
     field_values.append(str(len(field_values)))
 
@@ -140,8 +142,10 @@ def calculate_asset_hash(config: dict, asset_id: str) -> bytes:
     oracle_price_signers = synthetic_asset_info['oracle_price_signers']
 
     field_values = [asset_id, resolution, risk_factor]
+    field_values.append(len(oracle_price_signed_asset_ids))
     field_values += oracle_price_signed_asset_ids
     field_values.append(oracle_price_quorum)
+    field_values.append(len(oracle_price_signers))
     field_values += oracle_price_signers
     field_values.append(str(len(field_values)))
 

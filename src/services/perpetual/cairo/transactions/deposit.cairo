@@ -28,7 +28,7 @@ func execute_deposit(
     # public_key has no constraints.
     # position_id is validated implicitly by update_position_in_dict().
     %{ error_code = ids.PerpetualErrorCode.OUT_OF_RANGE_AMOUNT %}
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount, AMOUNT_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount, AMOUNT_UPPER_BOUND - 1)
 
     %{ del error_code %}
     let (range_check_ptr, positions_dict, _, _, return_code) = update_position_in_dict(
@@ -55,6 +55,7 @@ func execute_deposit(
     tempvar modification : Modification* = outputs.modifications_ptr
     assert modification.public_key = tx.public_key
     assert modification.position_id = tx.position_id
+    # For explanation why we add AMOUNT_UPPER_BOUND, see Modification's documentation.
     assert modification.biased_delta = tx.amount + AMOUNT_UPPER_BOUND
     let (outputs : PerpetualOutputs*) = perpetual_outputs_new(
         modifications_ptr=modification + Modification.SIZE,

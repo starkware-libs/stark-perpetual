@@ -42,9 +42,11 @@ func assert_lt{range_check_ptr}(a, b):
     return ()
 end
 
-# Verifies that 0 <= a <= b.
+# Verifies that 0 <= a <= b and that a < RANGE_CHECK_BOUND.
 #
-# Prover assumption: a, b < RANGE_CHECK_BOUND.
+# Prover assumption: b < RANGE_CHECK_BOUND.
+#
+# If the prover assumption isn't satisfied, The function assures that b < 2 * RANGE_CHECK_BOUND.
 func assert_nn_le{range_check_ptr}(a, b):
     assert_nn(a)
     assert_le(a, b)
@@ -52,6 +54,8 @@ func assert_nn_le{range_check_ptr}(a, b):
 end
 
 # Asserts that value is in the range [lower, upper).
+# Or more precisely:
+# (0 <= value - lower < RANGE_CHECK_BOUND) and (0 <= upper - 1 - value < RANGE_CHECK_BOUND).
 func assert_in_range{range_check_ptr}(value, lower, upper):
     assert_le(lower, value)
     assert_le(value, upper - 1)
@@ -120,7 +124,7 @@ func split_felt{range_check_ptr}(value) -> (high, low):
     if high == MAX_HIGH:
         assert_le(low, MAX_LOW)
     else:
-        assert_le(high, MAX_HIGH)
+        assert_le(high, MAX_HIGH - 1)
     end
     return (high=high, low=low)
 end
@@ -231,7 +235,7 @@ func unsigned_div_rem{range_check_ptr}(value, div) -> (q, r):
     return (q, r)
 end
 
-# Returns q and r such that. -bound <= q < bound, 0 <= r < div -1 and value = q * div + r.
+# Returns q and r such that. -bound <= q < bound, 0 <= r < div and value = q * div + r.
 # value < PRIME / 2 is considered positive and value > PRIME / 2 is considered negative.
 #
 # Assumptions:

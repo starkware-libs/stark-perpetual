@@ -1,5 +1,5 @@
 from services.perpetual.cairo.definitions.constants import FUNDING_INDEX_LOWER_BOUND
-from starkware.cairo.common.registers import get_fp_and_pc
+from starkware.cairo.common.registers import get_fp_and_pc, get_label_location
 from starkware.cairo.common.serialize import serialize_array, serialize_word
 
 struct FundingIndex:
@@ -22,15 +22,12 @@ struct FundingIndicesInfo:
 end
 
 func funding_indices_info_serialize{output_ptr : felt*}(funding_indices : FundingIndicesInfo*):
-    get_fp_and_pc()
-    let __pc__ = [fp + 1]
-
-    ret_pc_label:
+    let (callback_address) = get_label_location(funding_index_serialize)
     serialize_array(
         array=cast(funding_indices.funding_indices, felt*),
         n_elms=funding_indices.n_funding_indices,
         elm_size=FundingIndex.SIZE,
-        callback=funding_index_serialize + __pc__ - ret_pc_label)
+        callback=callback_address)
     serialize_word(funding_indices.funding_timestamp)
     return ()
 end
@@ -51,6 +48,8 @@ end
 
 func oracle_prices_new(len, data : OraclePrice*) -> (oracle_prices : OraclePrices*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as an OraclePrices object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (oracle_prices=cast(fp_val - 2 - OraclePrices.SIZE, OraclePrices*))
 end
 

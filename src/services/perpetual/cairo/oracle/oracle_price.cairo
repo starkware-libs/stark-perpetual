@@ -55,22 +55,21 @@ const TIMESTAMP_BOUND = %[2**32%]
 # * Signer key is greater than the last signer key (for uniqueness).
 # Returns (is_le, is_ge) with respect to the median price. This is needed to verify the median.
 func check_price_signature(
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*,
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*,
         time_bounds : TimeBounds*, asset_info : SyntheticAssetInfo*, median_price,
         collateral_resolution, sig : SignedOraclePrice*) -> (
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*, is_le, is_ge):
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*, is_le, is_ge):
     alloc_locals
 
     # Check ranges.
-    assert_nn_le{range_check_ptr=range_check_ptr}(sig.external_price, EXTERNAL_PRICE_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(
+        sig.external_price, EXTERNAL_PRICE_UPPER_BOUND - 1)
     assert_nn_le{range_check_ptr=range_check_ptr}(sig.timestamp, TIMESTAMP_BOUND)
 
     # Compute message.
-    with hash_ptr:
-        let (message) = hash2(
-            x=sig.signed_asset_id, y=sig.external_price * TIMESTAMP_BOUND + sig.timestamp)
-    end
-    local hash_ptr : HashBuiltin* = hash_ptr
+    let (message) = hash2{hash_ptr=pedersen_ptr}(
+        x=sig.signed_asset_id, y=sig.external_price * TIMESTAMP_BOUND + sig.timestamp)
+    local pedersen_ptr : HashBuiltin* = pedersen_ptr
 
     # Check signature.
     with ecdsa_ptr:
@@ -116,6 +115,7 @@ func check_price_signature(
     # denominator is 96 bit.
     tempvar denominator = asset_info.resolution * EXTERNAL_PRICE_FIXED_POINT_UNIT
     # Add denominator/2 to round.
+    # EXTERNAL_PRICE_FIXED_POINT_UNIT is even and therefore denominator is even.
     let (internal_price, _) = unsigned_div_rem{range_check_ptr=range_check_ptr}(
         numerator + denominator / 2, denominator)
 
@@ -127,7 +127,7 @@ func check_price_signature(
         return (
             range_check_ptr=range_check_ptr,
             ecdsa_ptr=ecdsa_ptr,
-            hash_ptr=hash_ptr,
+            pedersen_ptr=pedersen_ptr,
             is_le=1,
             is_ge=1)
     end
@@ -136,22 +136,22 @@ func check_price_signature(
     return (
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         is_le=1 - is_ge,
         is_ge=is_ge)
 end
 
 func check_oracle_price_inner(
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*,
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*,
         time_bounds : TimeBounds*, asset_info : SyntheticAssetInfo*, median_price,
         collateral_resolution, sig : SignedOraclePrice*, n_sigs, last_signer, n_le, n_ge) -> (
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*, n_le, n_ge):
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*, n_le, n_ge):
     if n_sigs == 0:
         # All signatures are checked.
         return (
             range_check_ptr=range_check_ptr,
             ecdsa_ptr=ecdsa_ptr,
-            hash_ptr=hash_ptr,
+            pedersen_ptr=pedersen_ptr,
             n_le=n_le,
             n_ge=n_ge)
     end
@@ -160,10 +160,10 @@ func check_oracle_price_inner(
     assert_lt_felt{range_check_ptr=range_check_ptr}(last_signer, sig.signer_key)
 
     # Check the signature.
-    let (range_check_ptr, ecdsa_ptr, hash_ptr, is_le, is_ge) = check_price_signature(
+    let (range_check_ptr, ecdsa_ptr, pedersen_ptr, is_le, is_ge) = check_price_signature(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         time_bounds=time_bounds,
         asset_info=asset_info,
         median_price=median_price,
@@ -174,7 +174,7 @@ func check_oracle_price_inner(
     return check_oracle_price_inner(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         time_bounds=time_bounds,
         asset_info=asset_info,
         median_price=median_price,
@@ -190,10 +190,10 @@ end
 # Checks there are at least quorum valid signatures from distinct signer keys, and that the price
 # used is a median price of these signed prices.
 func check_oracle_price(
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*,
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*,
         time_bounds : TimeBounds*, asset_oracle_price : AssetOraclePrice*,
         asset_info : SyntheticAssetInfo*, collateral_info : CollateralAssetInfo*) -> (
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*):
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*):
     alloc_locals
     local n_sigs = asset_oracle_price.n_signed_prices
 
@@ -205,10 +205,10 @@ func check_oracle_price(
         asset_oracle_price.price, PRICE_LOWER_BOUND, PRICE_UPPER_BOUND)
 
     # Check all signatures.
-    let (range_check_ptr, ecdsa_ptr, hash_ptr, n_le, n_ge) = check_oracle_price_inner(
+    let (range_check_ptr, ecdsa_ptr, pedersen_ptr, n_le, n_ge) = check_oracle_price_inner(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         time_bounds=time_bounds,
         asset_info=asset_info,
         median_price=asset_oracle_price.price,
@@ -225,18 +225,18 @@ func check_oracle_price(
     assert_le{range_check_ptr=range_check_ptr}(n_sigs, n_le * 2)
     assert_le{range_check_ptr=range_check_ptr}(n_sigs, n_ge * 2)
 
-    return (range_check_ptr=range_check_ptr, ecdsa_ptr=ecdsa_ptr, hash_ptr=hash_ptr)
+    return (range_check_ptr=range_check_ptr, ecdsa_ptr=ecdsa_ptr, pedersen_ptr=pedersen_ptr)
 end
 
 func check_oracle_prices_inner(
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*, n_oracle_prices,
-        asset_oracle_prices : AssetOraclePrice*, n_synthetic_assets_info,
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*,
+        n_oracle_prices, asset_oracle_prices : AssetOraclePrice*, n_synthetic_assets_info,
         synthetic_assets_info : SyntheticAssetInfo*, time_bounds : TimeBounds*,
         general_config : GeneralConfig*) -> (
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*):
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*):
     if n_oracle_prices == 0:
         # All prices are validated.
-        return (range_check_ptr=range_check_ptr, ecdsa_ptr=ecdsa_ptr, hash_ptr=hash_ptr)
+        return (range_check_ptr=range_check_ptr, ecdsa_ptr=ecdsa_ptr, pedersen_ptr=pedersen_ptr)
     end
 
     # n_synthetic_assets_info = 0 means that the current asset was not found in the general config.
@@ -249,7 +249,7 @@ func check_oracle_prices_inner(
         return check_oracle_prices_inner(
             range_check_ptr=range_check_ptr,
             ecdsa_ptr=ecdsa_ptr,
-            hash_ptr=hash_ptr,
+            pedersen_ptr=pedersen_ptr,
             n_oracle_prices=n_oracle_prices,
             asset_oracle_prices=asset_oracle_prices,
             n_synthetic_assets_info=n_synthetic_assets_info - 1,
@@ -259,10 +259,10 @@ func check_oracle_prices_inner(
     end
 
     # Check this oracle price.
-    let (range_check_ptr, ecdsa_ptr, hash_ptr) = check_oracle_price(
+    let (range_check_ptr, ecdsa_ptr, pedersen_ptr) = check_oracle_price(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         time_bounds=time_bounds,
         asset_oracle_price=asset_oracle_prices,
         asset_info=synthetic_assets_info,
@@ -272,7 +272,7 @@ func check_oracle_prices_inner(
     return check_oracle_prices_inner(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         n_oracle_prices=n_oracle_prices - 1,
         asset_oracle_prices=asset_oracle_prices + AssetOraclePrice.SIZE,
         n_synthetic_assets_info=n_synthetic_assets_info - 1,
@@ -283,15 +283,21 @@ end
 
 # Checks that a list of AssetOraclePrice instances are valid with respect to a GeneralConfig and a
 # time frame.
+# The function checks:
+#   1. All the assets are in the general config.
+#   2. There are at least quorum signatures.
+#   3. All prices are in the price range.
+#   4. All the signatures are valid.
+#   5. The price field is the median of all the prices in the signatures.
 func check_oracle_prices(
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*, n_oracle_prices,
-        asset_oracle_prices : AssetOraclePrice*, time_bounds : TimeBounds*,
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*,
+        n_oracle_prices, asset_oracle_prices : AssetOraclePrice*, time_bounds : TimeBounds*,
         general_config : GeneralConfig*) -> (
-        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, hash_ptr : HashBuiltin*):
+        range_check_ptr, ecdsa_ptr : SignatureBuiltin*, pedersen_ptr : HashBuiltin*):
     return check_oracle_prices_inner(
         range_check_ptr=range_check_ptr,
         ecdsa_ptr=ecdsa_ptr,
-        hash_ptr=hash_ptr,
+        pedersen_ptr=pedersen_ptr,
         n_oracle_prices=n_oracle_prices,
         asset_oracle_prices=asset_oracle_prices,
         n_synthetic_assets_info=general_config.n_synthetic_assets_info,

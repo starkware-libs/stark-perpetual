@@ -77,7 +77,7 @@ func main(
         new_orders_root = ids.orders_root
     %}
     let (pedersen_ptr, local new_shared_state) = shared_state_apply_state_updates(
-        hash_ptr=pedersen_ptr,
+        pedersen_ptr=pedersen_ptr,
         shared_state=program_input.prev_shared_state,
         squashed_carried_state=squashed_carried_state,
         general_config=program_input.general_config)

@@ -45,8 +45,8 @@ func execute_liquidate(
     local synthetic_delta
 
     # Note that tx.actual_synthetic is checked in execute_limit_order.
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.actual_collateral, AMOUNT_UPPER_BOUND)
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.actual_liquidator_fee, AMOUNT_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.actual_collateral, AMOUNT_UPPER_BOUND - 1)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.actual_liquidator_fee, AMOUNT_UPPER_BOUND - 1)
 
     # Assert that the liquidator position and the liquidated position are distinct.
     assert_not_equal(tx.liquidator_order.position_id, tx.liquidated_position_id)
@@ -92,8 +92,8 @@ func execute_liquidate(
     %{ error_code = ids.PerpetualErrorCode.ILLEGAL_POSITION_TRANSITION_ENLARGING_SYNTHETIC_HOLDINGS %}
     if limit_order.is_buying_synthetic == 0:
         # Initial_liquidated_asset_balance <= -synthetic_delta <= 0.
-        assert_in_range{range_check_ptr=range_check_ptr}(
-            -synthetic_delta, initial_liquidated_asset_balance, 1)
+        assert_nn_le{range_check_ptr=range_check_ptr}(
+            synthetic_delta, -initial_liquidated_asset_balance)
     else:
         # 0 <= -synthetic_delta <= initial_liquidated_asset_balance.
         assert_nn_le{range_check_ptr=range_check_ptr}(

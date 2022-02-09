@@ -53,7 +53,7 @@ func create_new_oracle_prices_and_validate_tick(
         batch_config : BatchConfig*, new_oracle_price_ptr : OraclePrice*) -> (
         range_check_ptr, n_new_oracle_prices):
     if n_tick_prices == 0:
-        assert_le{range_check_ptr=range_check_ptr}(last_tick_asset_id + 1, ASSET_ID_UPPER_BOUND)
+        assert_le{range_check_ptr=range_check_ptr}(last_tick_asset_id, ASSET_ID_UPPER_BOUND - 1)
         return insert_oracle_prices_until_asset_id(
             range_check_ptr=range_check_ptr,
             oracle_price_ptr=prev_oracle_price_ptr,
@@ -144,7 +144,7 @@ func execute_oracle_prices_tick(
         pedersen_ptr : HashBuiltin*, range_check_ptr, ecdsa_ptr : SignatureBuiltin*,
         carried_state : CarriedState*, outputs : PerpetualOutputs*):
     alloc_locals
-    # Check that new timestamp is larger than previous system time.
+    # Check that new timestamp is not smaller than previous system time.
     assert_le{range_check_ptr=range_check_ptr}(carried_state.system_time, tx.timestamp)
 
     let (local new_oracle_price_ptr : OraclePrice*) = alloc()

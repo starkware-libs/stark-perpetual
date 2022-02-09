@@ -24,6 +24,8 @@ end
 func forced_withdrawal_action_new(public_key, position_id, amount) -> (
         forced_withdrawal_action : ForcedWithdrawalAction*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a ForcedWithdrawalAction object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (
         forced_withdrawal_action=cast(fp_val - 2 - ForcedWithdrawalAction.SIZE, ForcedWithdrawalAction*))
 end
@@ -54,6 +56,8 @@ func forced_trade_action_new(
         amount_collateral, amount_synthetic, is_party_a_buying_synthetic, nonce) -> (
         forced_trade_action : ForcedTradeAction*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a ForcedTradeAction object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (forced_trade_action=cast(fp_val - 2 - ForcedTradeAction.SIZE, ForcedTradeAction*))
 end
 

@@ -15,5 +15,7 @@ func batch_config_new(
         signed_max_oracle_prices : OraclePrice*, n_oracle_prices, min_expiration_timestamp) -> (
         batch_config : BatchConfig*):
     let (fp_val, pc_val) = get_fp_and_pc()
+    # We refer to the arguments of this function as a BatchConfig object
+    # (fp_val - 2 points to the end of the function arguments in the stack).
     return (batch_config=cast(fp_val - 2 - BatchConfig.SIZE, BatchConfig*))
 end

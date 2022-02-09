@@ -28,8 +28,8 @@ end
 # The hash is defined as h(w1, w2) where h is the starkware pedersen function and w1, w2 are as
 # follows:
 #   w1= asset_id_collateral
-#   w2= 0x6 (10 bit) || vault_from (64 bit) || nonce (64 bit) || expiration_timestamp (32 bit)
-#    ||  0 (49 bit)
+#   w2= 0x6 (10 bit) || vault_from (64 bit) || nonce (32 bit) || amount (64 bit)
+#    || expiration_timestamp (32 bit) ||  0 (49 bit)
 #
 # Assumptions:
 # 0 <= nonce < NONCE_UPPER_BOUND
@@ -105,6 +105,7 @@ func execute_withdrawal(
     tempvar modification : Modification* = outputs.modifications_ptr
     assert modification.public_key = tx.base.public_key
     assert modification.position_id = tx.position_id
+    # For explanation why we add AMOUNT_UPPER_BOUND, see Modification's documentation.
     assert modification.biased_delta = AMOUNT_UPPER_BOUND - tx.amount
     let (outputs : PerpetualOutputs*) = perpetual_outputs_new(
         modifications_ptr=modification + Modification.SIZE,

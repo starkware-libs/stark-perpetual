@@ -44,6 +44,9 @@ func try_to_trade(
         global_funding_indices=carried_state.global_funding_indices,
         oracle_prices=carried_state.oracle_prices,
         general_config=general_config)
+    # This could be optimized. In the case that the buyer's update fails, we can just compute the
+    # seller's funded position without computing the updated position.
+    # Since forced trade is a rare transaction, this optimization isn't implemented.
     let (range_check_ptr, local updated_position_seller, local funded_position_seller,
         local return_code_b) = update_position(
         range_check_ptr=range_check_ptr,
@@ -102,8 +105,8 @@ func execute_forced_trade(
     # synthetic_asset_id is verified in add_asset.
     # Note: We don't mind failing here even when is_valid is 0, since the amount and the position_id
     # should be verified on-chain when a user makes the forced action request.
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_collateral, AMOUNT_UPPER_BOUND)
-    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_synthetic, AMOUNT_UPPER_BOUND)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_collateral, AMOUNT_UPPER_BOUND - 1)
+    assert_nn_le{range_check_ptr=range_check_ptr}(tx.amount_synthetic, AMOUNT_UPPER_BOUND - 1)
     %{ error_code = ids.PerpetualErrorCode.SAME_POSITION_ID %}
     assert_not_equal(tx.position_id_a, tx.position_id_b)
 

@@ -58,6 +58,8 @@ end
 # And updates the fulfilled_amount to reflect that 'update_amount' units were consumed.
 #
 # Checks that update_amount and full_amount are in the range [0, AMOUNT_UPPER_BOUND)
+# Checks that the new value written in the order_dict is in the range [0, AMOUNT_UPPER_BOUND) in
+# order to maintain the assumption.
 #
 # Arguments:
 # range_check_ptr - range check builtin pointer.
@@ -67,7 +69,7 @@ end
 # full_amount - The full in the user order, the order may not exceed this amount.
 #
 # Assumption:
-# The amounts in the orders_dict are non-negative.
+# The amounts in the orders_dict are in the range [0, AMOUNT_UPPER_BOUND).
 func update_order_fulfillment(
         range_check_ptr, orders_dict : DictAccess*, message_hash, update_amount, full_amount) -> (
         range_check_ptr, orders_dict : DictAccess*):
@@ -78,11 +80,12 @@ func update_order_fulfillment(
     let (range_check_ptr, order_id) = extract_order_id(
         range_check_ptr=range_check_ptr, message_hash=message_hash)
 
+    # The function's assumption means that 0 <= fulfilled_amount < AMOUNT_UPPER_BOUND.
     local fulfilled_amount
     %{
         ids.fulfilled_amount = __dict_manager.get_dict(ids.orders_dict)[ids.order_id]
         # Prepare error_code in case of error. This won't affect the cairo logic.
-        if ids.update_amount > ids.remaining_capacity:
+        if ids.update_amount > ids.full_amount - ids.fulfilled_amount:
             error_code = ids.PerpetualErrorCode.INVALID_FULFILLMENT_INFO
         else:
             # If there's an error in this case, then it's because update_amount is negative.
@@ -92,12 +95,23 @@ func update_order_fulfillment(
 
     # Check that 0 <= update_amount <= full_amount - fulfilled_amount.
     # Note that we may have remaining_capacity < 0 in the case of a collision in the order_id.
+    # The function assert_nn_le doesn't ensure the right argument is non-negative. Instead, it
+    # ensures that it is in the range [0, 2**129). We can still consider it a positive small number
+    # for all purposes.
     assert_nn_le{range_check_ptr=range_check_ptr}(update_amount, remaining_capacity)
     %{ error_code = ids.PerpetualErrorCode.OUT_OF_RANGE_AMOUNT %}
-    # Check that full_amount < AMOUNT_UPPER_BOUND.
+
+    # Check that full_amount < AMOUNT_UPPER_BOUND. We know that full_amount >= 0 because:
+    #   full_amount = remaining_capacity + fulfilled_amount. Both those numbers are non-negative.
+    #
+    # After this check we can deduce that update_amount is in range because:
+    # 0 <= update_amount <= remaining_capacity <= full_amount < AMOUNT_UPPER_BOUND.
     assert_le{range_check_ptr=range_check_ptr}(full_amount, AMOUNT_UPPER_BOUND - 1)
     %{ del error_code %}
 
+    # new_value is in the range [0, AMOUNT_UPPER_BOUND) because:
+    # 1. fulfilled_amount, update_amount are non-negative. Therefore, new_value is non-negative.
+    # 2. new_value <= fulfilled_amount + remaining_capacity = full_amount < AMOUNT_UPPER_BOUND.
     dict_update{dict_ptr=orders_dict}(
         key=order_id, prev_value=fulfilled_amount, new_value=fulfilled_amount + update_amount)
 

@@ -2,6 +2,7 @@ from services.perpetual.cairo.definitions.constants import (
     BALANCE_LOWER_BOUND, BALANCE_UPPER_BOUND, FUNDING_INDEX_LOWER_BOUND, FUNDING_INDEX_UPPER_BOUND,
     N_ASSETS_UPPER_BOUND)
 from services.perpetual.cairo.position.position import Position, PositionAsset
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.hash import hash2
@@ -105,9 +106,8 @@ end
 # Converts a dict of positions into a dict of position hashes.
 func hash_position_updates{pedersen_ptr : HashBuiltin*}(update_ptr : DictAccess*, n_updates) -> (
         hashed_updates_ptr : DictAccess*):
-    local hashed_updates_ptr : DictAccess*
-    %{ ids.hashed_updates_ptr = segments.add() %}
     alloc_locals
+    let (local hashed_updates_ptr : DictAccess*) = alloc()
     hash_position_updates_inner(
         update_ptr=update_ptr, n_updates=n_updates, hashed_updates_ptr=hashed_updates_ptr)
     return (hashed_updates_ptr=hashed_updates_ptr)

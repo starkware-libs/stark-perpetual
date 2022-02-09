@@ -42,6 +42,12 @@ func merkle_update{hash_ptr : HashBuiltin*}(height, prev_leaf, new_leaf, index) 
     [right_sibling] = new_node_hash.y; ap++
 
     # Call merkle_update recursively.
+
+    # Index must be even.
+    # After height steps, we check that index is 0. This means that index is currently bounded by
+    # 2 ** height (regardless of which jump we took). Because height is smaller than 251, the next
+    # index must be smaller than (PRIME - 1) // 2. The division of an odd number by 2 must be larger
+    # than (PRIME - 1) // 2 and therefore index must be even.
     return merkle_update(
         height=height - 1,
         prev_leaf=prev_node_hash.result,
@@ -63,6 +69,7 @@ func merkle_update{hash_ptr : HashBuiltin*}(height, prev_leaf, new_leaf, index) 
     [left_sibling] = prev_node_hash.x
     [left_sibling] = new_node_hash.x; ap++
 
+    # As described above, index must be odd at this point.
     return merkle_update(
         height=height - 1,
         prev_leaf=prev_node_hash.result,

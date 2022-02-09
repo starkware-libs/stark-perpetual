@@ -22,19 +22,17 @@ from starkware.cairo.common.registers import get_fp_and_pc
 # range_check_ptr - new range check builtin pointer.
 # collateral_fxp - The colleteral after the funding was applied as signed (.32) fixed point.
 #
-# Assumption: current_collateral_fxp does not overflow, it is a sum of 95 bit values.
+# Assumption: current_collateral_fxp does not overflow. It is a sum of 95 bit values, and overflow
+#   happens at 251 bits.
 # Prover assumption: The assets in assets_before are a subset of the assets in
 # global_funding_indices.
 func apply_funding_inner(
         range_check_ptr, assets_before : PositionAsset*, n_assets,
         global_funding_indices : FundingIndicesInfo*, current_collateral_fxp,
         assets_after : PositionAsset*) -> (range_check_ptr, collateral_fxp):
-    jmp body if n_assets != 0
-
-    # Return.
-    return (range_check_ptr=range_check_ptr, collateral_fxp=current_collateral_fxp)
-
-    body:
+    if n_assets == 0:
+        return (range_check_ptr=range_check_ptr, collateral_fxp=current_collateral_fxp)
+    end
     alloc_locals
     let current_asset : PositionAsset* = assets_before
 
