@@ -67,11 +67,10 @@ end
 # Prover assumptions:
 #    PRIME - 2**250 > 2**(250 - 128) + 1 * RC_BOUND.
 func assert_le_250_bit{range_check_ptr}(a, b):
-    let low = [range_check_ptr]
-    let high = [range_check_ptr + 1]
-    let range_check_ptr = range_check_ptr + 2
     const UPPER_BOUND = %[2**(250)%]
     const HIGH_PART_SHIFT = %[2**250 // 2**128 %]
+    let low = [range_check_ptr]
+    let high = [range_check_ptr + 1]
     tempvar diff = b - a
     %{
         def as_int(val):
@@ -98,6 +97,10 @@ func assert_le_250_bit{range_check_ptr}(a, b):
     # If 0 <= b < a < UPPER_BOUND then diff < 0 => diff % P = PRIME - diff > PRIME - UPPER_BOUND.
     # So given the soundness assumptions listed above it must be the case that a <= b.
     assert diff = high * HIGH_PART_SHIFT + low
+
+    # Check that low < HIGH_PART_SHIFT.
+    assert [range_check_ptr + 2] = HIGH_PART_SHIFT - low
+    let range_check_ptr = range_check_ptr + 3
 
     return ()
 end
