@@ -8,7 +8,7 @@ from services.perpetual.cairo.definitions.objects import FundingIndicesInfo
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.funding import FundingIndex
 from starkware.cairo.common.math import (
-    assert_in_range, assert_le, assert_le_felt, assert_lt, assert_not_zero)
+    assert_in_range, assert_le_felt, assert_lt, assert_nn_le, assert_not_zero)
 
 func validate_funding_indices_in_general_config_inner(
         funding_index : FundingIndex*, n_funding_indices,
@@ -104,7 +104,7 @@ func validate_general_config(range_check_ptr, general_config : GeneralConfig*) -
         ASSET_RESOLUTION_UPPER_BOUND)
 
     %{ error_code = ids.PerpetualErrorCode.TOO_MANY_SYNTHETIC_ASSETS_IN_SYSTEM %}
-    assert_le{range_check_ptr=range_check_ptr}(
+    assert_nn_le{range_check_ptr=range_check_ptr}(
         general_config.n_synthetic_assets_info, N_ASSETS_UPPER_BOUND - 1)
     %{ del error_code %}
     return (range_check_ptr=range_check_ptr)

@@ -7,12 +7,11 @@ from services.perpetual.cairo.output.data_availability import output_availabilit
 from services.perpetual.cairo.output.forced import ForcedAction
 from services.perpetual.cairo.output.program_input import ProgramInput
 from services.perpetual.cairo.output.program_output import (
-    Modification, PerpetualOutputs, ProgramOutput, perpetual_outputs_empty, program_output_new,
+    Modification, ProgramOutput, perpetual_outputs_empty, program_output_new,
     program_output_serialize)
 from services.perpetual.cairo.state.state import (
-    CarriedState, SharedState, SquashedCarriedState, carried_state_squash,
-    shared_state_apply_state_updates, shared_state_serialize, shared_state_to_carried_state)
-from starkware.cairo.common.alloc import alloc
+    CarriedState, SquashedCarriedState, carried_state_squash, shared_state_apply_state_updates,
+    shared_state_to_carried_state)
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.registers import get_fp_and_pc
 

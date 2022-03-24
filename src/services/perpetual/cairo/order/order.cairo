@@ -1,7 +1,7 @@
 from services.exchange.cairo.order import OrderBase
 from services.perpetual.cairo.definitions.constants import (
     AMOUNT_UPPER_BOUND, EXPIRATION_TIMESTAMP_UPPER_BOUND, NONCE_UPPER_BOUND, ORDER_ID_UPPER_BOUND,
-    POSITION_ID_UPPER_BOUND, POSITIVE_AMOUNT_LOWER_BOUND, RANGE_CHECK_BOUND, SIGNED_MESSAGE_BOUND)
+    RANGE_CHECK_BOUND, SIGNED_MESSAGE_BOUND)
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from starkware.cairo.common.cairo_builtins import SignatureBuiltin
 from starkware.cairo.common.dict import dict_update

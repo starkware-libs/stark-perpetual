@@ -14,9 +14,8 @@ from starkware.cairo.common.merkle_multi_update import merkle_multi_update
 #   %{ initial_dict = {1: 2, 3: 4, 5: 6} %}
 #   let (dict_ptr_start) = dict_new()
 #   let dict_ptr = dict_ptr_start
-#   let (dict_ptr) = dict_update(dict_ptr=dict_ptr, key=1, prev_value=2, new_value=20)
-#   let (range_check_ptr, squashed_dict_start, squashed_dict_end) = dict_squash(
-#       range_check_ptr=range_check_ptr,
+#   dict_update{dict_ptr=dict_ptr}(key=1, prev_value=2, new_value=20)
+#   let (squashed_dict_start, squashed_dict_end) = dict_squash(
 #       dict_accesses_start=dict_ptr_start,
 #       dict_accesses_end=dict_ptr)
 #   const HEIGHT = 3

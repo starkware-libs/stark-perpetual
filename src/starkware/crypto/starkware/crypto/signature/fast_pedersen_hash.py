@@ -22,7 +22,7 @@ P_3 = Point(*CONSTANT_POINTS[2 + N_ELEMENT_BITS_HASH + LOW_PART_BITS], curve=cur
 
 
 def process_single_element(element: int, p1, p2) -> Point:
-    assert element < FIELD_PRIME, 'Element integer value >= FIELD_PRIME'
+    assert 0 <= element < FIELD_PRIME, 'Element integer value is out of range'
 
     high_nibble = element >> LOW_PART_BITS
     low_part = element & LOW_PART_MASK

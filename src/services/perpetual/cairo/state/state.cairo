@@ -3,7 +3,6 @@ from services.perpetual.cairo.definitions.objects import (
     FundingIndicesInfo, OraclePrice, OraclePrices, funding_indices_info_serialize,
     oracle_price_serialize)
 from services.perpetual.cairo.position.hash import hash_position_updates
-from services.perpetual.cairo.position.position import Position
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.dict import dict_new

@@ -1,6 +1,5 @@
 from services.perpetual.cairo.definitions.constants import (
-    AMOUNT_UPPER_BOUND, EXPIRATION_TIMESTAMP_UPPER_BOUND, NONCE_UPPER_BOUND,
-    POSITIVE_AMOUNT_LOWER_BOUND)
+    AMOUNT_UPPER_BOUND, POSITIVE_AMOUNT_LOWER_BOUND)
 from services.perpetual.cairo.definitions.general_config import GeneralConfig
 from services.perpetual.cairo.definitions.perpetual_error_code import (
     PerpetualErrorCode, assert_success)
@@ -12,8 +11,6 @@ from services.perpetual.cairo.position.update_position import (
 from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict import dict_update
-from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.math import assert_in_range, assert_le, assert_nn_le, assert_not_equal
 
 # Executes a limit order of one party. Each trade will invoke this function twice, once per
@@ -56,7 +53,7 @@ func execute_limit_order(
     assert_nn_le{range_check_ptr=range_check_ptr}(limit_order.amount_fee, AMOUNT_UPPER_BOUND - 1)
 
     # actual_synthetic > 0. To prevent replay.
-    # Note that actual_synthetic <= AMOUNT_UPPER_BOUND is checked in
+    # Note that actual_synthetic < AMOUNT_UPPER_BOUND is checked in
     # validate_order_and_update_fulfillment.
     %{ error_code = ids.PerpetualErrorCode.OUT_OF_RANGE_POSITIVE_AMOUNT %}
     assert_le{range_check_ptr=range_check_ptr}(POSITIVE_AMOUNT_LOWER_BOUND, actual_synthetic)

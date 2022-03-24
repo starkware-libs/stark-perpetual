@@ -1,6 +1,6 @@
 from services.exchange.cairo.order import OrderBase
 from services.perpetual.cairo.definitions.constants import (
-    AMOUNT_UPPER_BOUND, EXPIRATION_TIMESTAMP_UPPER_BOUND, NONCE_UPPER_BOUND, ORDER_ID_UPPER_BOUND,
+    AMOUNT_UPPER_BOUND, EXPIRATION_TIMESTAMP_UPPER_BOUND, NONCE_UPPER_BOUND,
     POSITION_ID_UPPER_BOUND)
 from services.perpetual.cairo.definitions.general_config import GeneralConfig
 from services.perpetual.cairo.definitions.perpetual_error_code import assert_success
@@ -12,9 +12,7 @@ from services.perpetual.cairo.position.update_position import (
 from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.hash import hash2
-from starkware.cairo.common.math import assert_nn_le
 
 struct Withdrawal:
     member base : OrderBase*

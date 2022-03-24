@@ -1,12 +1,11 @@
 from services.perpetual.cairo.definitions.general_config import (
-    CollateralAssetInfo, FeePositionInfo, GeneralConfig, SyntheticAssetInfo,
-    TimestampValidationConfig)
+    CollateralAssetInfo, FeePositionInfo, GeneralConfig, SyntheticAssetInfo)
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.hash_state import (
-    HashState, hash_finalize, hash_init, hash_update, hash_update_single)
+    hash_finalize, hash_init, hash_update, hash_update_single)
 
-# A synthetic asset entry contaning this asset id and its config's hash.
+# A synthetic asset entry contaning its asset id and its config's hash.
 struct AssetConfigHashEntry:
     member asset_id : felt
     member config_hash : felt

@@ -2,7 +2,7 @@ from services.perpetual.cairo.definitions.constants import (
     ASSET_ID_UPPER_BOUND, BALANCE_LOWER_BOUND, BALANCE_UPPER_BOUND)
 from services.perpetual.cairo.position.position import Position, PositionAsset
 from starkware.cairo.common.dict_access import DictAccess
-from starkware.cairo.common.math_cmp import is_le, is_nn
+from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.serialize import serialize_word
 
 # Serializes a position asset for the on-chain data availability.

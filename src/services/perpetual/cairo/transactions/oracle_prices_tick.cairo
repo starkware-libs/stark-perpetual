@@ -10,7 +10,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.find_element import find_element, search_sorted_lower
 from starkware.cairo.common.math import assert_in_range, assert_le
 from starkware.cairo.common.memcpy import memcpy
-from starkware.cairo.common.registers import get_fp_and_pc
 
 # A tick containing oracle prices for assets.
 # The tick does not contain signatures. Instead, at the start of each batch, signatures are verified

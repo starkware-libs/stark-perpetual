@@ -3,7 +3,7 @@ from services.perpetual.cairo.definitions.general_config import GeneralConfig
 from services.perpetual.cairo.definitions.perpetual_error_code import (
     PerpetualErrorCode, assert_success)
 from services.perpetual.cairo.output.forced import (
-    ForcedAction, ForcedActionType, ForcedTradeAction, forced_trade_action_new)
+    ForcedAction, ForcedActionType, forced_trade_action_new)
 from services.perpetual.cairo.output.program_output import PerpetualOutputs, perpetual_outputs_new
 from services.perpetual.cairo.position.position import Position
 from services.perpetual.cairo.position.update_position import update_position

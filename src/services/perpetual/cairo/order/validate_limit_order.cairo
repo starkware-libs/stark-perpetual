@@ -1,7 +1,6 @@
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.order.limit_order import LimitOrder
-from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_le, assert_lt, assert_nn
+from starkware.cairo.common.math import assert_le, assert_lt
 
 # Validates limit order fulfillment.
 # Asserts that the actual amounts are fair with respect to the signed limit order.
@@ -18,9 +17,9 @@ from starkware.cairo.common.math import assert_le, assert_lt, assert_nn
 #
 # Assumption:
 #   1 <= actual_synthetic <= order.amount_synthetic < AMOUNT_UPPER_BOUND
-#   0 <= actual_collateral < AMOUNT_UPPER_BOUND
+#   0 < actual_collateral < AMOUNT_UPPER_BOUND
 #   0 <= actual_fee < AMOUNT_UPPER_BOUND
-#   0 <= order.amount_collateral < AMOUNT_UPPER_BOUND
+#   0 < order.amount_collateral < AMOUNT_UPPER_BOUND
 #   0 <= order.amount_fee < AMOUNT_UPPER_BOUND
 #   AMOUNT_UPPER_BOUND**2 <= rc_bound.
 func validate_limit_order_fairness(

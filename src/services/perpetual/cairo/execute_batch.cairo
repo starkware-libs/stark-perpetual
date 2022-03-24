@@ -1,12 +1,10 @@
-from services.perpetual.cairo.definitions.general_config import SyntheticAssetInfo
-from services.perpetual.cairo.definitions.objects import OraclePrice
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.execute_batch_utils import (
     validate_funding_indices_in_general_config, validate_general_config)
 from services.perpetual.cairo.oracle.oracle_price import (
     TimeBounds, check_oracle_prices, signed_prices_to_prices)
 from services.perpetual.cairo.output.program_input import ProgramInput
-from services.perpetual.cairo.output.program_output import PerpetualOutputs, perpetual_outputs_empty
+from services.perpetual.cairo.output.program_output import PerpetualOutputs
 from services.perpetual.cairo.state.state import CarriedState
 from services.perpetual.cairo.transactions.batch_config import BatchConfig, batch_config_new
 from services.perpetual.cairo.transactions.conditional_transfer import (
@@ -26,8 +24,7 @@ from services.perpetual.cairo.transactions.transaction import (
 from services.perpetual.cairo.transactions.transfer import Transfer, execute_transfer
 from services.perpetual.cairo.transactions.withdrawal import Withdrawal, execute_withdrawal
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict_access import DictAccess
-from starkware.cairo.common.math import assert_le, assert_lt
+from starkware.cairo.common.math import assert_le
 from starkware.cairo.common.registers import get_fp_and_pc
 
 func execute_transaction(

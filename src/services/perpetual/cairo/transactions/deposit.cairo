@@ -3,13 +3,11 @@ from services.perpetual.cairo.definitions.perpetual_error_code import (
     PerpetualErrorCode, assert_success)
 from services.perpetual.cairo.output.program_output import (
     Modification, PerpetualOutputs, perpetual_outputs_new)
-from services.perpetual.cairo.position.position import Position
 from services.perpetual.cairo.position.update_position import (
     NO_SYNTHETIC_DELTA_ASSET_ID, update_position_in_dict)
 from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict import dict_update
 from starkware.cairo.common.math import assert_nn_le
 
 struct Deposit:

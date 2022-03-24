@@ -6,7 +6,6 @@ from services.exchange.cairo.signature_message_hashes import (
 from services.perpetual.cairo.definitions.constants import POSITION_ID_UPPER_BOUND
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.hash import hash2
 
 struct LimitOrder:
     member base : OrderBase*

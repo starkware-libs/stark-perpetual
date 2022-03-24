@@ -81,6 +81,9 @@ func hash_position_updates_inner{pedersen_ptr : HashBuiltin*}(
     tempvar funding_timestamp = prev_position.funding_timestamp
 
     # New position hash.
+    # A non-deterministic jump is used here to make the code more efficient.
+    # Soundness is guaranteed by asserting update_ptr.prev_value = update_ptr.new_value in the equal
+    # branch. In the not_equal branch it does not matter if they are equal or not.
     %{ memory[ap] = 1 if ids.update_ptr.prev_value != ids.update_ptr.new_value else 0 %}
     jmp not_equal if [ap] != 0; ap++
 

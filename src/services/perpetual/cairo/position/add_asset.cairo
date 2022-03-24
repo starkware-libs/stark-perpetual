@@ -6,7 +6,6 @@ from services.perpetual.cairo.position.position import (
     create_maybe_empty_position)
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.find_element import search_sorted, search_sorted_lower
-from starkware.cairo.common.math import assert_not_equal
 from starkware.cairo.common.memcpy import memcpy
 
 # Fetches the balance and cached funding index of a position asset if found.

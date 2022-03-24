@@ -3,8 +3,7 @@ from services.perpetual.cairo.definitions.constants import (
 from services.perpetual.cairo.definitions.objects import FundingIndex, FundingIndicesInfo
 from services.perpetual.cairo.position.position import Position, PositionAsset, position_new
 from starkware.cairo.common.find_element import find_element
-from starkware.cairo.common.math import assert_nn_le, signed_div_rem
-from starkware.cairo.common.registers import get_fp_and_pc
+from starkware.cairo.common.math import signed_div_rem
 
 # Computes the total_funding for a given position and updates the cached funding indices.
 # The funding per asset is computed as:

@@ -132,7 +132,6 @@ func update_position(
         delta=collateral_delta,
         public_key=public_key)
     if return_code != PerpetualErrorCode.SUCCESS:
-        final_position = position
         return (
             range_check_ptr=range_check_ptr,
             updated_position=funded_position,

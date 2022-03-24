@@ -9,9 +9,7 @@ from services.perpetual.cairo.position.funding import FundingIndex
 from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.find_element import find_element
-from starkware.cairo.common.math import (
-    abs_value, assert_in_range, assert_le, assert_le_250_bit, assert_not_equal)
+from starkware.cairo.common.math import abs_value, assert_in_range, assert_le, assert_le_250_bit
 from starkware.cairo.common.registers import get_fp_and_pc
 
 struct FundingTick:

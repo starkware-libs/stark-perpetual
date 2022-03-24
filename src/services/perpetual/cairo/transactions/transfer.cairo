@@ -15,8 +15,6 @@ from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict_access import DictAccess
-from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.math import assert_nn_le, assert_not_equal
 
 struct Transfer:

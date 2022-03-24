@@ -1,5 +1,5 @@
 from services.perpetual.cairo.definitions.constants import FXP_32_ONE
-from services.perpetual.cairo.definitions.general_config import GeneralConfig, SyntheticAssetInfo
+from services.perpetual.cairo.definitions.general_config import GeneralConfig
 from services.perpetual.cairo.definitions.objects import OraclePrices
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.check_smaller_holdings import (

@@ -1,6 +1,5 @@
 from services.perpetual.cairo.definitions.general_config_hash import AssetConfigHashEntry
-from services.perpetual.cairo.definitions.objects import (
-    FundingIndicesInfo, funding_indices_info_serialize)
+from services.perpetual.cairo.definitions.objects import FundingIndicesInfo
 from services.perpetual.cairo.output.forced import ForcedAction, forced_action_serialize
 from services.perpetual.cairo.state.state import SharedState, shared_state_serialize
 from starkware.cairo.common.alloc import alloc

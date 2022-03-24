@@ -1,15 +1,12 @@
 from services.perpetual.cairo.definitions.constants import AMOUNT_UPPER_BOUND
-from services.perpetual.cairo.definitions.general_config import FeePositionInfo, GeneralConfig
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.order.limit_order import LimitOrder
 from services.perpetual.cairo.output.program_output import PerpetualOutputs
-from services.perpetual.cairo.position.position import Position
-from services.perpetual.cairo.state.state import CarriedState, carried_state_new
+from services.perpetual.cairo.state.state import CarriedState
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from services.perpetual.cairo.transactions.execute_limit_order import execute_limit_order
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict import dict_update
-from starkware.cairo.common.math import assert_in_range, assert_nn_le, assert_not_equal
+from starkware.cairo.common.math import assert_nn_le, assert_not_equal
 
 struct Trade:
     # Party A is the party that buys synthetic and party B is the party that sells synthetic.

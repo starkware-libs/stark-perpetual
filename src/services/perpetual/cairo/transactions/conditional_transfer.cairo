@@ -1,7 +1,4 @@
-from services.exchange.cairo.order import OrderBase
-from services.perpetual.cairo.definitions.constants import (
-    AMOUNT_UPPER_BOUND, EXPIRATION_TIMESTAMP_UPPER_BOUND, NONCE_UPPER_BOUND,
-    POSITION_ID_UPPER_BOUND)
+from services.perpetual.cairo.definitions.constants import AMOUNT_UPPER_BOUND
 from services.perpetual.cairo.definitions.general_config import GeneralConfig
 from services.perpetual.cairo.definitions.perpetual_error_code import (
     PerpetualErrorCode, assert_success)
@@ -13,7 +10,6 @@ from services.perpetual.cairo.state.state import CarriedState, carried_state_new
 from services.perpetual.cairo.transactions.batch_config import BatchConfig
 from services.perpetual.cairo.transactions.transfer import Transfer, transfer_hash
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.math import assert_nn_le, assert_not_equal
 
 struct ConditionalTransfer:
@@ -36,7 +32,7 @@ func execute_conditional_transfer(
     local range_check_ptr = range_check_ptr
     # expiration_timestamp and nonce will be validated in validate_order_and_update_fulfillment.
     # Asset id is in range because we check that it's equal to the collateral asset id.
-    # Sender/Reciever's position id will be validated by update_position_in_dict.
+    # Sender/Receiver's position id will be validated by update_position_in_dict.
 
     local general_config : GeneralConfig* = batch_config.general_config
     # Validate that asset is collateral.

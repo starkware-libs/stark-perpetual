@@ -2,7 +2,7 @@ from services.perpetual.cairo.definitions.constants import AMOUNT_UPPER_BOUND
 from services.perpetual.cairo.definitions.perpetual_error_code import (
     PerpetualErrorCode, assert_success)
 from services.perpetual.cairo.output.forced import (
-    ForcedAction, ForcedActionType, ForcedWithdrawalAction, forced_withdrawal_action_new)
+    ForcedAction, ForcedActionType, forced_withdrawal_action_new)
 from services.perpetual.cairo.output.program_output import (
     Modification, PerpetualOutputs, perpetual_outputs_new)
 from services.perpetual.cairo.position.update_position import (
