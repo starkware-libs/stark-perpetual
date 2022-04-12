@@ -71,7 +71,10 @@ def main():
         d = d.split(':')[-1]
         metadata_files = glob.glob(os.path.join(d, '*/METADATA'))
         for filename in metadata_files:
-            licenses += extract_licenses(filename)
+            try:
+                licenses += extract_licenses(filename)
+            except IsADirectoryError:
+                pass
     licenses = sorted(set(licenses))
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
