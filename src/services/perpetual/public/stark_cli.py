@@ -21,7 +21,7 @@ from services.perpetual.public.perpetual_messages import get_price_msg
 from starkware.crypto.signature.signature import FIELD_PRIME, private_to_stark_key, sign
 
 
-class HexedBoundedParam():
+class HexedBoundedParam:
     def __init__(self, bound):
         self.bound = bound
 
@@ -33,7 +33,7 @@ class HexedBoundedParam():
 
 def sign_cli(key, data):
     r, s = sign(data, key)
-    return ' '.join([hex(r), hex(s)])
+    return " ".join([hex(r), hex(s)])
 
 
 def public_cli(key):
@@ -80,17 +80,37 @@ def main():
     def hash_main(args, unknown):
         parser = ArgumentParser()
         parser.add_argument(
-            '-a', '--asset', required=True, dest='asset',
-            help='The asset pair', type=HexedBoundedParam(2**128))
+            "-a",
+            "--asset",
+            required=True,
+            dest="asset",
+            help="The asset pair",
+            type=HexedBoundedParam(2**128),
+        )
         parser.add_argument(
-            '-o', '--oracle', required=True, dest='oracle',
-            help='The signing oracle', type=HexedBoundedParam(2**40))
+            "-o",
+            "--oracle",
+            required=True,
+            dest="oracle",
+            help="The signing oracle",
+            type=HexedBoundedParam(2**40),
+        )
         parser.add_argument(
-            '-p', '--price', required=True, dest='price',
-            help='The asset price', type=HexedBoundedParam(2**120))
+            "-p",
+            "--price",
+            required=True,
+            dest="price",
+            help="The asset price",
+            type=HexedBoundedParam(2**120),
+        )
         parser.add_argument(
-            '-t', '--time', required=True, dest='time',
-            help='The asset time', type=HexedBoundedParam(2**32))
+            "-t",
+            "--time",
+            required=True,
+            dest="time",
+            help="The asset time",
+            type=HexedBoundedParam(2**32),
+        )
 
         parser.parse_args(unknown, namespace=args)
 
@@ -99,12 +119,22 @@ def main():
     def sign_main(args, unknown):
         parser = ArgumentParser()
         parser.add_argument(
-            '-k', '--key', required=True, dest='key',
-            help='The private key (hex string)', type=HexedBoundedParam(FIELD_PRIME))
+            "-k",
+            "--key",
+            required=True,
+            dest="key",
+            help="The private key (hex string)",
+            type=HexedBoundedParam(FIELD_PRIME),
+        )
 
         parser.add_argument(
-            '-d', '--data', required=True, dest='data',
-            help='The data to sign', type=HexedBoundedParam(FIELD_PRIME))
+            "-d",
+            "--data",
+            required=True,
+            dest="data",
+            help="The data to sign",
+            type=HexedBoundedParam(FIELD_PRIME),
+        )
 
         parser.parse_args(unknown, namespace=args)
         return sign_cli(args.key, args.data)
@@ -112,22 +142,32 @@ def main():
     def public_main(args, unknown):
         parser = ArgumentParser()
         parser.add_argument(
-            '-k', '--key', required=True, dest='key',
-            help='The private key (hex string)', type=HexedBoundedParam(FIELD_PRIME))
+            "-k",
+            "--key",
+            required=True,
+            dest="key",
+            help="The private key (hex string)",
+            type=HexedBoundedParam(FIELD_PRIME),
+        )
 
         parser.parse_args(unknown, namespace=args)
         return public_cli(args.key)
 
     subparsers = {
-        'hash': hash_main,
-        'sign': sign_main,
-        'get_public': public_main,
+        "hash": hash_main,
+        "sign": sign_main,
+        "get_public": public_main,
     }
 
     parser = ArgumentParser(description=description, formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        '-m', '--method', required=True, dest='method',
-        help='The required operation - hash or sign', choices=subparsers.keys())
+        "-m",
+        "--method",
+        required=True,
+        dest="method",
+        help="The required operation - hash or sign",
+        choices=subparsers.keys(),
+    )
 
     args, unknown = parser.parse_known_args()
     try:
@@ -141,5 +181,5 @@ def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

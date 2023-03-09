@@ -22,6 +22,16 @@
             "amount": 1000
         }
     },
+    "withdrawal_to_address": {
+        "0x420bf51648029b6a040c425d718016d7b1ea706f59752d9a6e275705519ff59": {
+            "assetIdCollateral": 1,
+            "ethAddress": "0x123",
+            "positionId": 10,
+            "nonce": 0,
+            "expirationTimestamp": 100,
+            "amount": 1000
+        }
+    },
     "transfer": {
         "0x372aa6e519559b48b02a29eeafed55daa9ca8462153fd22d29f41d6fab10171": {
             "assetId": 1,

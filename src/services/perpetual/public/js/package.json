@@ -1,0 +1,30 @@
+{
+    "name": "starkware_perpetual_crypto",
+    "version": "0.1.0",
+    "description": "Starkware perpetual crypto utilities",
+    "main": "perpetual_messages.js",
+    "scripts": {
+        "test": "mocha",
+        "lint": "eslint -f unix --ext=.js ./"
+    },
+    "keywords": [
+        "stark",
+        "signature",
+        "perpetual",
+        "starkware"
+    ],
+    "files": [
+        "perpetual_messages.js"
+    ],
+    "dependencies": {
+        "starkware_crypto": "file:../../../../starkware/crypto/signature",
+        "bn.js": "^4.4.0"
+    },
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "eslint": "^6.8.0",
+        "mocha": "^7.1.0"
+    },
+    "author": "StarkWare Industries Ltd.",
+    "license": "Apache-2.0"
+}

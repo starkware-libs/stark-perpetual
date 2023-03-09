@@ -19,11 +19,11 @@ class OperatorPrecedence(Enum):
     Represents the precedence of an operator.
     """
 
-    LOWEST = 0        # Unary minus.
-    PLUS = auto()     # Either + or -.
-    MUL = auto()      # Either * or /.
-    POW = auto()      # Power (**).
-    ADDROF = auto()   # Address-of operator (&).
+    LOWEST = 0  # Unary minus.
+    PLUS = auto()  # Either + or -.
+    MUL = auto()  # Either * or /.
+    POW = auto()  # Power (**).
+    ADDROF = auto()  # Address-of operator (&).
     HIGHEST = auto()  # Numeric values, variables, parenthesized expressions, ...
 
     def __lt__(self, other):
@@ -68,6 +68,8 @@ class ExpressionString:
         and '5^7' will not require parentheses, and the result will start with '5 * 7 * ...' or
         '5^7 * ...'.
         """
+        if format_spec == "":
+            format_spec = "LOWEST"
         return self._maybe_add_parentheses(OperatorPrecedence[format_spec])
 
     def __str__(self):
@@ -75,34 +77,51 @@ class ExpressionString:
 
     def __add__(self, other):
         other = to_expr_string(other)
-        return ExpressionString(f'{self:PLUS} + {other:PLUS}', OperatorPrecedence.PLUS)
+        return ExpressionString(f"{self:PLUS} + {other:PLUS}", OperatorPrecedence.PLUS)
 
     def __sub__(self, other):
         # Note that self and other are not symmetric. For example (a + b) - (c + d) should be:
         #   a + b - (c + d).
         other = to_expr_string(other)
-        return ExpressionString(f'{self:PLUS} - {other:MUL}', OperatorPrecedence.PLUS)
+        return ExpressionString(f"{self:PLUS} - {other:MUL}", OperatorPrecedence.PLUS)
 
     def __mul__(self, other):
         other = to_expr_string(other)
-        return ExpressionString(f'{self:MUL} * {other:MUL}', OperatorPrecedence.MUL)
+        return ExpressionString(f"{self:MUL} * {other:MUL}", OperatorPrecedence.MUL)
 
     def __truediv__(self, other):
         # Note that self and other are not symmetric. For example (a * b) / (c * d) should be:
         #   a * b / (c * d).
         other = to_expr_string(other)
-        return ExpressionString(f'{self:MUL} / {other:POW}', OperatorPrecedence.MUL)
+        return ExpressionString(f"{self:MUL} / {other:POW}", OperatorPrecedence.MUL)
 
     def __pow__(self, other):
         other = to_expr_string(other)
+        # For the two expressions (a^b)^c and a^(b^c), parentheses will always be added.
+        return ExpressionString(f"{self:HIGHEST}^{other:HIGHEST}", OperatorPrecedence.POW)
+
+    def double_star_pow(self, other):
+        """
+        Same as self ** other, except that the text is using " ** " instead of "^".
+        """
+        other = to_expr_string(other)
         # For the two expressions (a ** b) ** c and a ** (b ** c), parentheses will always be added.
-        return ExpressionString(f'{self:HIGHEST}^{other:HIGHEST}', OperatorPrecedence.POW)
+        return ExpressionString(f"{self:HIGHEST} ** {other:HIGHEST}", OperatorPrecedence.POW)
 
     def __neg__(self):
-        return ExpressionString(f'-{self:ADDROF}', OperatorPrecedence.LOWEST)
+        # Use OperatorPrecedence.LOWEST (even though the actual precedence of the unary minus is
+        # higher) so that parentheses will be added even when lower-precedence operators are used.
+        # For example: `(-x) + y`.
+        return ExpressionString(f"-{self:ADDROF}", OperatorPrecedence.LOWEST)
 
     def address_of(self):
-        return ExpressionString(f'&{self:ADDROF}', OperatorPrecedence.ADDROF)
+        return ExpressionString(f"&{self:ADDROF}", OperatorPrecedence.ADDROF)
+
+    def operator_new(self):
+        # Use OperatorPrecedence.LOWEST (even though the actual precedence of the new operator is
+        # higher) so that parentheses will be added even when lower-precedence operators are used.
+        # For example: `(new x) + y`.
+        return ExpressionString(f"new {self:ADDROF}", OperatorPrecedence.LOWEST)
 
     def prepend(self, txt):
         """
@@ -116,7 +135,7 @@ class ExpressionString:
         to operator_precedence and with parentheses otherwise.
         """
         if self.outmost_operator_precedence < operator_precedence:
-            return '(%s)' % self.txt
+            return "(%s)" % self.txt
         else:
             return self.txt
 
