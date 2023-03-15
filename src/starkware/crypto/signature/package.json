@@ -1,0 +1,53 @@
+{
+  "name": "starkware_crypto",
+  "version": "0.1.4",
+  "description": "Signatures, keys and Pedersen hash on STARK friendly elliptic curve",
+  "main": "src/js/signature.js",
+  "scripts": {
+    "test": "mocha test/js/**",
+    "lint": "eslint -c lint_config.yaml -f unix --ext=.js ./",
+    "lint_fix": "eslint -c lint_config.yaml --fix -f unix --ext=.js ./"
+  },
+  "keywords": [
+    "stark",
+    "signature",
+    "EC",
+    "Elliptic",
+    "curve",
+    "Cryptography"
+  ],
+  "files": [
+    "src/js/assets.js",
+    "src/js/key_derivation.js",
+    "src/js/signature.js",
+    "test/js/asset.spec.js",
+    "test/js/key_derivation.spec.js",
+    "test/js/signature.spec.js",
+    "src/js/signature_example.js",
+    "src/config/assets_precomputed.json",
+    "src/config/constant_points.json",
+    "src/config/keys_precomputed.json",
+    "test/config/signature_test_data.json"
+  ],
+  "dependencies": {
+    "bip39": "^3.0.4",
+    "bn.js": "^4.12.0",
+    "brorand": "^1.1.0",
+    "elliptic": "v6.5.4",
+    "enc-utils": "^3.0.0",
+    "ethereumjs-wallet": "^1.0.2",
+    "hash.js": "^1.1.7",
+    "hmac-drbg": "^1.0.1",
+    "inherits": "^2.0.4",
+    "js-sha3": "^0.8.0",
+    "minimalistic-assert": "^1.0.1",
+    "minimalistic-crypto-utils": "^1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^8.15.0",
+    "mocha": "^9.2.2"
+  },
+  "author": "StarkWare Industries Ltd.",
+  "license": "Apache-2.0"
+}

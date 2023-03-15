@@ -1,0 +1,68 @@
+MINIMUM_DAYS_BEFORE_EXPIRATION=7
+_USER=${USER:-"undefined-user"}
+
+config=`echo "$@" | grep -ow 'config[=| ][a-z]*' | cut -c8-`
+function run_and_log () {
+    echo "Running: $@"
+    exec -a "$@"
+}
+
+function certificate_helper () {
+    echo "Running Bazel build execution remotely..."
+    # Check if the user has a bazel-certificates directory and create one if needed.
+    if [ ! -d "$HOME/.bazel_certs" ]; then
+        echo "Creating new ~/.bazel_certs directory..."
+        mkdir $HOME/.bazel_certs
+    fi
+
+    # Check if there is an existing certificate.
+    if [ -f "$HOME/.bazel_certs/${_USER}.crt" ]; then
+        USER_CRT="$HOME/.bazel_certs/${_USER}.crt"
+        EXPIRATION_TIME=$((MINIMUM_DAYS_BEFORE_EXPIRATION * 86400))
+        # If there is an existing certificate, check if it will expire within the next 7 days.
+        CERTIFICATE_EXPIRATION=`openssl x509 -checkend ${EXPIRATION_TIME} -noout -in ${USER_CRT}`
+    fi
+
+    if [ "$CERTIFICATE_EXPIRATION" == "Certificate will not expire" ]; then
+        # Use existing certificate.
+        echo "Using existing certificate under ${USER_CRT}"
+    else
+        # Renew certificate.
+        echo "Renewing Bazel certificate..."
+
+        # Generate new RSA key.
+        openssl genrsa -out $HOME/.bazel_certs/${_USER}_rsa.key 4096
+        openssl pkcs8 -topk8 -inform pem -in $HOME/.bazel_certs/${_USER}_rsa.key \
+                -outform pem -nocrypt \
+                -out $HOME/.bazel_certs/$_USER.key
+
+        # Make certificate-request (must have appropriate .conf file).
+        openssl req -new -key $HOME/.bazel_certs/$_USER.key \
+                -out $HOME/.bazel_certs/$_USER.csr \
+                -config tools/user_csr.conf
+
+        # Issue certificate-request (valid for 14 days).
+        gcloud privateca certificates create ${_USER}-bazel-crt \
+                --issuer-pool Starkware-bazel-private-ca \
+                --issuer-location=us-central1 \
+                --csr $HOME/.bazel_certs/${_USER}.csr  \
+                --validity=P14D \
+                --cert-output-file $HOME/.bazel_certs/${_USER}.crt \
+                --project starkware-dev
+    fi
+}
+
+
+if [ "$config" = "rbe" ]; then # mTLS flow.
+    certificate_helper
+    certificate_flags="
+        --tls_certificate $HOME/.bazel_certs/$_USER.crt
+        --tls_client_key $HOME/.bazel_certs/$_USER.key
+        --tls_client_certificate $HOME/.bazel_certs/$_USER.crt"
+
+    run_and_log $0 $BAZEL_REAL "$@" $certificate_flags
+else
+    # Local build execution.
+    echo "Running Bazel build execution locally..."
+    run_and_log $0 $BAZEL_REAL "$@"
+fi
