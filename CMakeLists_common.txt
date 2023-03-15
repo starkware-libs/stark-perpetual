@@ -1,0 +1,16 @@
+set (PYTHON_COMMAND python3.9)
+
+include(CTest)
+
+enable_testing()
+
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+# Python library macro.
+find_program(PYTHON "python3")
+
+include("src/cmake_utils/cmake_rules.cmake")
+
+

@@ -1,0 +1,86 @@
+{
+    "assetId": {
+        "0x1142460171646987f20c714eda4b92812b22b811f56f27130937c267e29bd9e": {
+            "type": "ETH",
+            "data": {
+                "quantum": "1"
+            }
+        },
+        "0xd5b742d29ab21fdb06ac5c7c460550131c0b30cbc4c911985174c0ea4a92ec": {
+            "type": "ETH",
+            "data": {
+                "quantum": "10000000"
+            }
+        },
+        "0x352386d5b7c781d47ecd404765307d74edc4d43b0490b8e03c71ac7a7429653": {
+            "type": "ERC20",
+            "data": {
+                "quantum": "10000",
+                "tokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+            }
+        },
+        "0x2b0ff0c09505bc40f9d1659becf16855a7b2298b010f8a54f4b05325885b40c": {
+            "type": "ERC721",
+            "data": {
+                "tokenId": "4100",
+                "tokenAddress": "0xB18ed4768F87b0fFAb83408014f1caF066b91380"
+            }
+        },
+        "0x400cb8583e0f661f6262dd4559d77a57c1042a8bf403f404fbecbdd2c3e7869": {
+            "type": "MINTABLE_ERC20",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        },
+        "0x4000b258acc3735c71a62f013220e0b15da70a9bc1028172865b1155e453826": {
+            "type": "MINTABLE_ERC721",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        }
+    },
+    "assetType": {
+        "0x1142460171646987f20c714eda4b92812b22b811f56f27130937c267e29bd9e": {
+            "type": "ETH",
+            "data": {
+                "quantum": "1"
+            }
+        },
+        "0xd5b742d29ab21fdb06ac5c7c460550131c0b30cbc4c911985174c0ea4a92ec": {
+            "type": "ETH",
+            "data": {
+                "quantum": "10000000"
+            }
+        },
+        "0x352386d5b7c781d47ecd404765307d74edc4d43b0490b8e03c71ac7a7429653": {
+            "type": "ERC20",
+            "data": {
+                "quantum": "10000",
+                "tokenAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+            }
+        },
+        "0x20c0e279ea2e027258d3056f34eca6e47ad9aaa995b896cafcb68d5a65b115b": {
+            "type": "ERC721",
+            "data": {
+                "tokenId": "4100",
+                "tokenAddress": "0xB18ed4768F87b0fFAb83408014f1caF066b91380"
+            }
+        },
+        "0x56e7ef18eacaecb8dec74230021eaa51eb610c06f9a3ab07c8ba6647c70dea": {
+            "type": "MINTABLE_ERC20",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        },
+        "0xdff71c93bbc61d266f578ec07847f841c339df8b30fe66d9ecf7e8789d87b1": {
+            "type": "MINTABLE_ERC721",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        }
+    }
+}

@@ -1,0 +1,3 @@
+set(PROGRAM_HASH_TEST_UTILS_LIB_ADDITIONAL_LIBS pip_cairo_lang)
+
+include(program_hash_test_utils.cmake)

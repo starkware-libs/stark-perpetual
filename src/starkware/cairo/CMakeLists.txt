@@ -1,4 +1,3 @@
-add_subdirectory(bootloader)
-add_subdirectory(common)
+add_subdirectory(bootloaders)
+add_subdirectory(dex)
 add_subdirectory(lang)
-add_subdirectory(sharp)
