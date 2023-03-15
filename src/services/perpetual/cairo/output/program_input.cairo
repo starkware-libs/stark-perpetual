@@ -3,13 +3,13 @@ from services.perpetual.cairo.oracle.oracle_price import AssetOraclePrice
 from services.perpetual.cairo.state.state import SharedState
 from services.perpetual.cairo.transactions.transaction import Transactions
 
-struct ProgramInput:
-    member general_config : GeneralConfig*
-    member prev_shared_state : SharedState*
-    member new_shared_state : SharedState*
-    member minimum_expiration_timestamp : felt
-    member txs : Transactions*
-    member n_signed_oracle_prices : felt
-    member signed_min_oracle_prices : AssetOraclePrice*
-    member signed_max_oracle_prices : AssetOraclePrice*
-end
+struct ProgramInput {
+    general_config: GeneralConfig*,
+    prev_shared_state: SharedState*,
+    new_shared_state: SharedState*,
+    minimum_expiration_timestamp: felt,
+    txs: Transactions*,
+    n_signed_oracle_prices: felt,
+    signed_min_oracle_prices: AssetOraclePrice*,
+    signed_max_oracle_prices: AssetOraclePrice*,
+}

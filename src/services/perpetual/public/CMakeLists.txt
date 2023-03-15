@@ -8,6 +8,7 @@ python_lib(perpetual_public_lib
 
     LIBS
     starkware_crypto_lib
+    starkware_python_utils_lib
     pip_mypy_extensions
     pip_pyyaml
     pip_web3
@@ -15,7 +16,7 @@ python_lib(perpetual_public_lib
 
 
 python_venv(perpetual_public_venv
-    PYTHON python3.7
+    PYTHON ${PYTHON_COMMAND}
     LIBS
     perpetual_public_lib
 )
@@ -23,7 +24,7 @@ python_venv(perpetual_public_venv
 
 full_python_test(perpetual_public_test
     PREFIX services/perpetual/public
-    PYTHON python3.7
+    PYTHON ${PYTHON_COMMAND}
 
     FILES
     perpetual_messages_test.py
@@ -35,6 +36,6 @@ full_python_test(perpetual_public_test
     pip_pytest
 
     ARTIFACTS
-    "${CMAKE_SOURCE_DIR}/src/starkware/crypto/starkware/crypto/signature/signature_test_data.json signature_test_data.json"
-    "${CMAKE_SOURCE_DIR}/src/starkware/crypto/starkware/crypto/signature/keys_precomputed.json keys_precomputed.json"
+    "${CMAKE_SOURCE_DIR}/src/starkware/crypto/signature/test/config/signature_test_data.json signature_test_data.json"
+    "${CMAKE_SOURCE_DIR}/src/starkware/crypto/signature/src/config/keys_precomputed.json keys_precomputed.json"
 )
