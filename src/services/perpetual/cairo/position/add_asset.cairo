@@ -2,8 +2,7 @@ from services.perpetual.cairo.definitions.constants import POSITION_MAX_SUPPORTE
 from services.perpetual.cairo.definitions.objects import FundingIndex, FundingIndicesInfo
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.position import (
-    Position, PositionAsset, check_request_public_key, check_valid_balance,
-    create_maybe_empty_position)
+    Position, PositionAsset, check_request_public_key, check_valid_balance, position_new)
 from starkware.cairo.common.find_element import search_sorted, search_sorted_lower
 from starkware.cairo.common.math import assert_not_equal
 from starkware.cairo.common.memcpy import memcpy
@@ -166,7 +165,7 @@ func position_add_asset(
             return_code=PerpetualErrorCode.TOO_MANY_SYNTHETIC_ASSETS_IN_POSITION)
     end
 
-    let (position : Position*) = create_maybe_empty_position(
+    let (position : Position*) = position_new(
         public_key=public_key,
         collateral_balance=position.collateral_balance,
         n_assets=res_n_assets,

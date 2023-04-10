@@ -25,6 +25,7 @@ python_venv(cairo_lang_venv
     cairo_hash_program_lib
     cairo_run_lib
     cairo_script_lib
+    pip_marshmallow_oneofschema
     ${CAIRO_LANG_VENV_ADDITIONAL_LIBS}
 )
 

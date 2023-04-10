@@ -1,6 +1,7 @@
 from services.perpetual.cairo.definitions.constants import BALANCE_LOWER_BOUND, BALANCE_UPPER_BOUND
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from starkware.cairo.common.find_element import search_sorted
+from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.math_cmp import is_nn_le
 from starkware.cairo.common.registers import get_fp_and_pc
 
@@ -32,25 +33,20 @@ func position_new(
     return (position=cast(fp_val - 2 - Position.SIZE, Position*))
 end
 
-# Creates a position with given arguments.
-# If the position is empty (collateral_balance == n_assets == 0) the public_key is ignored
-# and an empty position is returned.
-# The public_key must be non-zero.
-func create_maybe_empty_position(
-        public_key, collateral_balance, n_assets, assets_ptr : PositionAsset*,
-        funding_timestamp) -> (position : Position*):
-    jmp body if public_key != 0
-    # If public_key == 0 add an unsatisfiable requirement.
-    public_key = 1
+# If the position is empty (collateral_balance == n_assets == 0) returns an empty position with a
+# zero public_key. Otherwise, returns the given position.
+# The input's public_key must be non-zero.
+func create_maybe_empty_position(initial_position : Position*) -> (position : Position*):
+    assert_not_zero(initial_position.public_key)
 
-    body:
+    tempvar collateral_balance = initial_position.collateral_balance
+    tempvar n_assets = initial_position.n_assets
     jmp assign_position if collateral_balance != 0
     jmp assign_position if n_assets != 0
     return position_new(0, 0, 0, cast(0, PositionAsset*), 0)
 
     assign_position:
-    let (fp_val, _) = get_fp_and_pc()
-    return (position=cast(fp_val - 2 - Position.SIZE, Position*))
+    return (position=initial_position)
 end
 
 # Checks that the public key supplied in a request to change the position is valid.
@@ -97,7 +93,7 @@ func position_add_collateral(range_check_ptr, position : Position*, delta, publi
         return (range_check_ptr=range_check_ptr, position=position, return_code=return_code)
     end
 
-    let (local final_position : Position*) = create_maybe_empty_position(
+    let (local final_position : Position*) = position_new(
         public_key=public_key,
         collateral_balance=position.collateral_balance + delta,
         n_assets=position.n_assets,

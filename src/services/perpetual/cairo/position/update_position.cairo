@@ -4,7 +4,8 @@ from services.perpetual.cairo.definitions.objects import (
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.add_asset import position_add_asset
 from services.perpetual.cairo.position.funding import position_apply_funding
-from services.perpetual.cairo.position.position import Position, position_add_collateral
+from services.perpetual.cairo.position.position import (
+    Position, create_maybe_empty_position, position_add_collateral)
 from services.perpetual.cairo.position.validate_state_transition import check_valid_transition
 from starkware.cairo.common.dict import dict_update
 from starkware.cairo.common.dict_access import DictAccess
@@ -104,7 +105,7 @@ func update_position(
             return_code=return_code)
     end
 
-    let (range_check_ptr, updated_position : Position*, return_code) = position_add_asset(
+    let (local range_check_ptr, updated_position : Position*, return_code) = position_add_asset(
         range_check_ptr=range_check_ptr,
         position=updated_position,
         global_funding_indices=global_funding_indices,
@@ -118,7 +119,9 @@ func update_position(
             funded_position=funded_position,
             return_code=return_code)
     end
-    final_position = updated_position
+
+    let (local final_position : Position*) = create_maybe_empty_position(
+        initial_position=updated_position)
 
     let (range_check_ptr, return_code) = check_valid_transition(
         range_check_ptr, final_position, funded_position, oracle_prices, general_config)

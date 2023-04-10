@@ -143,7 +143,7 @@ def lex(code: str) -> List[lark.lexer.Token]:
     """
     Runs the lexer on the given code and returns the lark-parser tokens.
     """
-    return (gram_parser.lex(code))
+    return (gram_parser.lex(code))  # type: ignore
 
 
 def parse_file(code: str, filename: str = '<string>') -> CairoFile:
