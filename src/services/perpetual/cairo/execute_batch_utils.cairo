@@ -6,12 +6,14 @@ from services.perpetual.cairo.definitions.constants import (
     N_ASSETS_UPPER_BOUND,
     ORACLE_PRICE_QUORUM_LOWER_BOUND,
     ORACLE_PRICE_QUORUM_UPPER_BOUND,
-    RISK_FACTOR_LOWER_BOUND,
-    RISK_FACTOR_UPPER_BOUND,
+    RISK_FACTOR_SEGMENT_UPPER_BOUND,
+    RISK_LOWER_BOUND,
+    RISK_UPPER_BOUND,
 )
 from services.perpetual.cairo.definitions.general_config import (
     CollateralAssetInfo,
     GeneralConfig,
+    RiskFactorSegment,
     SyntheticAssetInfo,
 )
 from services.perpetual.cairo.definitions.objects import FundingIndicesInfo
@@ -21,6 +23,7 @@ from starkware.cairo.common.math import (
     assert_in_range,
     assert_le_felt,
     assert_lt,
+    assert_nn,
     assert_nn_le,
     assert_not_zero,
 )
@@ -70,6 +73,25 @@ func validate_funding_indices_in_general_config(
     return ();
 }
 
+// Validates that the risk factor segments are ordered by their upper bounds, and that every risk
+// factor is in range.
+func validate_risk_factor_function{range_check_ptr}(
+    risk_factor_segments: RiskFactorSegment*, n_risk_factor_segments
+) {
+    assert_in_range(risk_factor_segments.risk, RISK_LOWER_BOUND, RISK_UPPER_BOUND);
+
+    if (n_risk_factor_segments == 1) {
+        assert risk_factor_segments.upper_bound = RISK_FACTOR_SEGMENT_UPPER_BOUND - 1;
+        return ();
+    }
+
+    let next_segment = risk_factor_segments + RiskFactorSegment.SIZE;
+    assert_lt(risk_factor_segments.upper_bound, next_segment.upper_bound);
+    return validate_risk_factor_function(
+        risk_factor_segments=next_segment, n_risk_factor_segments=n_risk_factor_segments - 1
+    );
+}
+
 func validate_assets_config_inner(
     range_check_ptr,
     synthetic_assets_info_ptr: SyntheticAssetInfo*,
@@ -82,8 +104,13 @@ func validate_assets_config_inner(
     }
     assert_lt{range_check_ptr=range_check_ptr}(prev_asset_id, synthetic_assets_info_ptr.asset_id);
 
-    assert_in_range{range_check_ptr=range_check_ptr}(
-        synthetic_assets_info_ptr.risk_factor, RISK_FACTOR_LOWER_BOUND, RISK_FACTOR_UPPER_BOUND
+    assert_lt{range_check_ptr=range_check_ptr}(0, synthetic_assets_info_ptr.n_risk_factor_segments);
+    assert_nn{range_check_ptr=range_check_ptr}(
+        synthetic_assets_info_ptr.risk_factor_segments.upper_bound
+    );
+    validate_risk_factor_function{range_check_ptr=range_check_ptr}(
+        risk_factor_segments=synthetic_assets_info_ptr.risk_factor_segments,
+        n_risk_factor_segments=synthetic_assets_info_ptr.n_risk_factor_segments,
     );
 
     assert_in_range{range_check_ptr=range_check_ptr}(

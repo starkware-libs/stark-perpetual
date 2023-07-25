@@ -8,7 +8,6 @@ from services.perpetual.public.perpetual_messages import (
     get_conditional_transfer_msg,
     get_limit_order_msg,
     get_transfer_msg,
-    get_withdrawal_msg,
     get_withdrawal_to_address_msg,
 )
 
@@ -70,19 +69,6 @@ def test_transfer_precomputed(perpetual_messages_file: Dict[str, dict]):
             messageData["amount"],
             messageData["maxAmountFee"],
             messageData["expirationTimestamp"],
-        )
-        assert hex(messageHash) == expectedMessageHash
-
-
-def test_withdrawal_precomputed(perpetual_messages_file: Dict[str, dict]):
-    # Tests that the get_withdrawal_msg function produces hashed messages as expected.
-    for expectedMessageHash, messageData in perpetual_messages_file["withdrawal"].items():
-        messageHash = get_withdrawal_msg(
-            messageData["assetIdCollateral"],
-            messageData["positionId"],
-            messageData["nonce"],
-            messageData["expirationTimestamp"],
-            messageData["amount"],
         )
         assert hex(messageHash) == expectedMessageHash
 

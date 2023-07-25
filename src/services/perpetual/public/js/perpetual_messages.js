@@ -28,6 +28,9 @@ const Bn32 = new BN('100000000', 16);
 // 2^128.
 const Bn128 = new BN('100000000000000000000000000000000', 16);
 
+// 2^160.
+const Bn160 = new BN('10000000000000000000000000000000000000000', 16);
+
 // 2^250.
 const Bn250 = new BN('400000000000000000000000000000000000000000000000000000000000000', 16);
 
@@ -40,6 +43,7 @@ const LimitOrderWithFees = '3';
 const Transfer = '4';
 const ConditionalTransfer = '5';
 const Withdrawal = '6';
+const WithdrawalToAddress = '7';
 
 
 function getPerpetualWithdrawalMessage(
@@ -74,7 +78,48 @@ function getPerpetualWithdrawalMessage(
     packedMsg = packedMsg.ushln(32).add(expirationTimestampBn);
     packedMsg = packedMsg.ushln(49);
 
-    return hash([assetIdCollateral, packedMsg]);
+    return hash([assetIdCollateralBn, packedMsg]);
+}
+
+function getPerpetualWithdrawalToAddressMessage(
+        assetIdCollateral,
+        positionId,
+        ethAddress,
+        nonce,
+        expirationTimestamp,
+        amount,
+        hash = starkwareCrypto.pedersen
+) {
+    const assetIdCollateralBn = new BN(assetIdCollateral, 10);
+    const positionIdBn = new BN(positionId, 10);
+    const ethAddressBn = new BN(ethAddress, 10);
+    const nonceBn = new BN(nonce, 10);
+    const amountBn = new BN(amount, 10);
+    const expirationTimestampBn = new BN(expirationTimestamp, 10);
+
+    // 0 <= assetIdCollateral < 2^250
+    assertInRange(assetIdCollateralBn, zeroBn, Bn250, 'assetIdCollateral');
+    // 0 <= nonce < 2^32
+    assertInRange(nonceBn, zeroBn, Bn32, 'nonce');
+    // 0 <= positionId < 2^64
+    assertInRange(positionIdBn, zeroBn, Bn64, 'positionId');
+    // 0 <= expirationTimestamp < 2^32
+    assertInRange(expirationTimestampBn, zeroBn, Bn32, 'expirationTimestamp');
+    // 0 <= amount < 2^64
+    assertInRange(amountBn, zeroBn, Bn64, 'amount');
+    // 0 <= ethAddress < 2^160
+    assertInRange(ethAddressBn, zeroBn, Bn160, 'ethAddress');
+
+    let packedMsg = new BN(WithdrawalToAddress, 10);
+    packedMsg = packedMsg.ushln(64).add(positionIdBn);
+    packedMsg = packedMsg.ushln(32).add(nonceBn);
+    packedMsg = packedMsg.ushln(64).add(amountBn);
+    packedMsg = packedMsg.ushln(32).add(expirationTimestampBn);
+    packedMsg = packedMsg.ushln(49);
+
+    const partialHash = hash([assetIdCollateralBn, ethAddressBn]);
+
+    return hash([partialHash, packedMsg]);
 }
 
 function perpetualTransfersRangeChecks(
@@ -288,7 +333,7 @@ function getPerpetualLimitOrderMessage(
 }
 
 module.exports = {
-    getPerpetualWithdrawalMessage, getPerpetualTransferMessage, getPerpetualLimitOrderMessage,
+    getPerpetualWithdrawalMessage, getPerpetualWithdrawalToAddressMessage,
+    getPerpetualTransferMessage, getPerpetualLimitOrderMessage,
     getPerpetualConditionalTransferMessage  // Function.
 };
-

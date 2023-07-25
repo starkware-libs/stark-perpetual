@@ -1,5 +1,5 @@
 aiohttp
-cairo-lang==0.10.3
+cairo-lang==0.0.0+local
 coverage<5.0.0
 ecdsa
 eth-hash[pycryptodome]==0.2.0
@@ -17,5 +17,5 @@ pytest
 pytest-cov
 PyYAML>=5.1
 sympy
-typeguard
+typeguard<3.0.0
 Web3

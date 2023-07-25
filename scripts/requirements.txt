@@ -8,7 +8,6 @@ attrs==21.4.0
 base58==2.1.1
 bitarray==1.2.2
 cachetools==5.0.0
-cairo-lang==0.10.3
 certifi==2021.10.8
 charset-normalizer==2.0.12
 coverage==4.5.4

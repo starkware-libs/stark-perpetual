@@ -270,7 +270,7 @@
             }
         ],
         "package": {
-            "installed_version": "0.10.3",
+            "installed_version": "0.0.0+local",
             "key": "cairo-lang",
             "package_name": "cairo-lang"
         }

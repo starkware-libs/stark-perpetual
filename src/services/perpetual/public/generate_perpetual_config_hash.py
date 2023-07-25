@@ -29,7 +29,7 @@ import sys
 import yaml
 
 from services.perpetual.definitions.general_config import GENERAL_CONFIG_HASH_VERSION
-from services.perpetual.public.definitions.constants import ASSET_ID_UPPER_BOUND
+from services.perpetual.public.definitions.constants import ASSET_ID_UPPER_BOUND, RISK_UPPER_BOUND
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 from starkware.python.utils import to_bytes
 
@@ -40,16 +40,15 @@ ASSET_ID_BYTES = 15
 assert 2 ** (ASSET_ID_BYTES * 8) == ASSET_ID_UPPER_BOUND
 
 
-def str2int(val: str) -> int:
+def convert2int(val: str) -> int:
     """
-    Converts a decimal or hex string into an int.
+    Converts a decimal string, a hex string, or a boolean into an int.
     Also accepts an int and returns it unchanged.
     """
-    if type(val) is int:
+    if type(val) in (int, bool):
         return int(val)
-    if len(val) < 3:
-        return int(val, 10)
-    if val[:2] == "0x":
+    assert type(val) is str, "Unsupported type."
+    if len(val) > 2 and val[:2] == "0x":
         return int(val, 16)
     return int(val, 10)
 
@@ -106,6 +105,8 @@ def calculate_general_config_hash(config: dict) -> bytes:
 
     assert "data_availability_mode" in config
     data_availability_mode = config["data_availability_mode"]
+    assert "is_risk_by_balance_only" in config
+    is_risk_by_balance_only = config["is_risk_by_balance_only"]
 
     field_values = [
         GENERAL_CONFIG_HASH_VERSION,
@@ -119,12 +120,13 @@ def calculate_general_config_hash(config: dict) -> bytes:
         price_validity_period,
         funding_validity_period,
         data_availability_mode,
+        is_risk_by_balance_only,
     ]
     field_values.append(str(len(field_values)))
 
     hash_result = bytes(HASH_BYTES)
     for value in field_values:
-        hash_result = pedersen_hash_func(hash_result, to_bytes(str2int(value)))
+        hash_result = pedersen_hash_func(hash_result, to_bytes(convert2int(value)))
     return hash_result
 
 
@@ -141,7 +143,8 @@ def calculate_asset_hash(config: dict, asset_id: str) -> bytes:
     resolution = synthetic_asset_info["resolution"]
 
     assert "risk_factor" in synthetic_asset_info
-    risk_factor = synthetic_asset_info["risk_factor"]
+    assert "segments" in synthetic_asset_info["risk_factor"]
+    risk_factor_segments = synthetic_asset_info["risk_factor"]["segments"]
 
     assert "oracle_price_signed_asset_ids" in synthetic_asset_info
     oracle_price_signed_asset_ids = synthetic_asset_info["oracle_price_signed_asset_ids"]
@@ -152,7 +155,10 @@ def calculate_asset_hash(config: dict, asset_id: str) -> bytes:
     assert "oracle_price_signers" in synthetic_asset_info
     oracle_price_signers = synthetic_asset_info["oracle_price_signers"]
 
-    field_values = [asset_id, resolution, risk_factor]
+    field_values = [asset_id, resolution]
+    field_values.append(len(risk_factor_segments))
+    for segment in risk_factor_segments:
+        field_values += [segment["upper_bound"] * RISK_UPPER_BOUND + int(segment["risk"])]
     field_values.append(len(oracle_price_signed_asset_ids))
     field_values += oracle_price_signed_asset_ids
     field_values.append(oracle_price_quorum)
@@ -162,7 +168,7 @@ def calculate_asset_hash(config: dict, asset_id: str) -> bytes:
 
     hash_result = bytes(HASH_BYTES)
     for value in field_values:
-        hash_result = pedersen_hash_func(hash_result, to_bytes(str2int(value)))
+        hash_result = pedersen_hash_func(hash_result, to_bytes(convert2int(value)))
     return hash_result
 
 

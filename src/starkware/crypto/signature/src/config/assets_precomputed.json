@@ -26,7 +26,7 @@
                 "tokenAddress": "0xB18ed4768F87b0fFAb83408014f1caF066b91380"
             }
         },
-        "0x400cb8583e0f661f6262dd4559d77a57c1042a8bf403f404fbecbdd2c3e7869": {
+        "0x700cb8583e0f661f6262dd4559d77a57c1042a8bf403f404fbecbdd2c3e7869": {
             "type": "MINTABLE_ERC20",
             "data": {
                 "blob": "The quick brown fox jumped over the lazy dog.",
@@ -35,6 +35,13 @@
         },
         "0x4000b258acc3735c71a62f013220e0b15da70a9bc1028172865b1155e453826": {
             "type": "MINTABLE_ERC721",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        },
+        "0x6008035d2ff07e6b3673a275244bd0d0537ac0b732f37980a7ad94300d0ef41": {
+            "type": "MINTABLE_ERC1155",
             "data": {
                 "blob": "The quick brown fox jumped over the lazy dog.",
                 "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
@@ -77,6 +84,13 @@
         },
         "0xdff71c93bbc61d266f578ec07847f841c339df8b30fe66d9ecf7e8789d87b1": {
             "type": "MINTABLE_ERC721",
+            "data": {
+                "blob": "The quick brown fox jumped over the lazy dog.",
+                "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"
+            }
+        },
+        "0x334eda189a5c580f3f93f8b7d3e86b7432f7006f3ee3700f914f881c103372c": {
+            "type": "MINTABLE_ERC1155",
             "data": {
                 "blob": "The quick brown fox jumped over the lazy dog.",
                 "tokenAddress": "0xB1FEFd15fa7bC14e78719f9120a43E54EeBb3d0e"

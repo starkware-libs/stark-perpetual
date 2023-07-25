@@ -4,7 +4,11 @@ from services.perpetual.cairo.definitions.constants import (
     TOTAL_VALUE_LOWER_BOUND,
     TOTAL_VALUE_UPPER_BOUND,
 )
-from services.perpetual.cairo.definitions.general_config import GeneralConfig, SyntheticAssetInfo
+from services.perpetual.cairo.definitions.general_config import (
+    GeneralConfig,
+    SyntheticAssetInfo,
+    get_risk_factor,
+)
 from services.perpetual.cairo.definitions.objects import OraclePrice, OraclePrices
 from services.perpetual.cairo.definitions.perpetual_error_code import PerpetualErrorCode
 from services.perpetual.cairo.position.position import Position, PositionAsset
@@ -47,8 +51,6 @@ func position_get_status_inner(
         n_elms=oracle_prices.len,
         key=asset_id,
     );
-    // Signed (96.32) fixed point.
-    local value_rep = oracle_price_elm.price * current_asset.balance;
 
     // The key must be at offset 0.
     static_assert SyntheticAssetInfo.asset_id == 0;
@@ -58,11 +60,21 @@ func position_get_status_inner(
         n_elms=general_config.n_synthetic_assets_info,
         key=asset_id,
     );
-    local risk_factor = synthetic_info.risk_factor;
 
-    let abs_value_rep = abs_value{range_check_ptr=range_check_ptr}(value=value_rep);
+    let abs_balance = abs_value{range_check_ptr=range_check_ptr}(value=current_asset.balance);
 
-    // value_rep is a (96.32) fixed point so risk_rep is a (128.64) fixed point.
+    let risk_factor = get_risk_factor{range_check_ptr=range_check_ptr}(
+        risk_factor_segments=synthetic_info.risk_factor_segments,
+        n_risk_factor_segments=synthetic_info.n_risk_factor_segments,
+        is_risk_by_balance_only=general_config.is_risk_by_balance_only,
+        abs_balance=abs_balance,
+        price=oracle_price_elm.price,
+    );
+
+    // Signed (96.32) fixed point.
+    let value_rep = oracle_price_elm.price * current_asset.balance;
+    let abs_value_rep = oracle_price_elm.price * abs_balance;
+    // abs_value_rep is a (96.32) fixed point so risk_rep is a (128.64) fixed point.
     tempvar risk_rep = abs_value_rep * risk_factor;
 
     return position_get_status_inner(

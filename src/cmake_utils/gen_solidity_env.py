@@ -12,6 +12,8 @@ import subprocess
 from argparse import ArgumentParser
 from typing import Dict, List
 
+BAD_BRANCH_IDENTIFIER = "BADB51"
+
 
 def find_dependency_libraries(libs: List[str], info_dir: str) -> Dict[str, dict]:
     """
@@ -91,12 +93,12 @@ def main():
         cwd=args.env_dir,
     )
 
-    git_commit = "BADB51"
+    git_commit = BAD_BRANCH_IDENTIFIER
     try:
         git_commit = (
             subprocess.check_output("git rev-parse HEAD".split()).decode("ascii").strip()[:6]
         )
-    except:
+    except Exception:
         pass
 
     # Extract artifacts.

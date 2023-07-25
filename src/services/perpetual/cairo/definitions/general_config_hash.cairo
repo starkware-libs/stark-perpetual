@@ -1,7 +1,9 @@
+from services.perpetual.cairo.definitions.constants import RISK_UPPER_BOUND
 from services.perpetual.cairo.definitions.general_config import (
     CollateralAssetInfo,
     FeePositionInfo,
     GeneralConfig,
+    RiskFactorSegment,
     SyntheticAssetInfo,
 )
 from starkware.cairo.common.alloc import alloc
@@ -11,12 +13,33 @@ from starkware.cairo.common.hash_state import (
     hash_init,
     hash_update,
     hash_update_single,
+    HashState,
 )
 
-// A synthetic asset entry contaning its asset id and its config's hash.
+// A synthetic asset entry containing its asset id and its config's hash.
 struct AssetConfigHashEntry {
     asset_id: felt,
     config_hash: felt,
+}
+
+// Calculates the hash of a risk factor function.
+func risk_factor_hash_helper{hash_ptr: HashBuiltin*}(
+    hash_state_ptr: HashState*,
+    risk_factor_segments: RiskFactorSegment*,
+    n_risk_factor_segments: felt,
+) -> (new_hash_state_ptr: HashState*) {
+    if (n_risk_factor_segments == 0) {
+        return (new_hash_state_ptr=hash_state_ptr);
+    }
+    // Each hash element represents a single segment in the step function, by concatenating the
+    // upper bound with the risk.
+    let combined = risk_factor_segments.upper_bound * RISK_UPPER_BOUND + risk_factor_segments.risk;
+    let (hash_state_ptr) = hash_update_single(hash_state_ptr, combined);
+    return risk_factor_hash_helper(
+        hash_state_ptr=hash_state_ptr,
+        risk_factor_segments=risk_factor_segments + RiskFactorSegment.SIZE,
+        n_risk_factor_segments=n_risk_factor_segments - 1,
+    );
 }
 
 // Calculate the hash of a SyntheticAssetInfo.
@@ -33,7 +56,12 @@ func synthetic_asset_info_hash{pedersen_ptr: HashBuiltin*}(
             hash_state_ptr, synthetic_asset_info_ptr.resolution
         );
         let (hash_state_ptr) = hash_update_single(
-            hash_state_ptr, synthetic_asset_info_ptr.risk_factor
+            hash_state_ptr, synthetic_asset_info_ptr.n_risk_factor_segments
+        );
+        let (hash_state_ptr) = risk_factor_hash_helper(
+            hash_state_ptr=hash_state_ptr,
+            risk_factor_segments=synthetic_asset_info_ptr.risk_factor_segments,
+            n_risk_factor_segments=synthetic_asset_info_ptr.n_risk_factor_segments,
         );
         let (hash_state_ptr) = hash_update_single(
             hash_state_ptr, synthetic_asset_info_ptr.n_oracle_price_signed_asset_ids
@@ -55,7 +83,7 @@ func synthetic_asset_info_hash{pedersen_ptr: HashBuiltin*}(
             synthetic_asset_info_ptr.n_oracle_price_signers,
         );
 
-        static_assert SyntheticAssetInfo.SIZE == 8;
+        static_assert SyntheticAssetInfo.SIZE == 9;
         let (hash) = hash_finalize(hash_state_ptr);
     }
     let pedersen_ptr = hash_ptr;
@@ -106,8 +134,11 @@ func general_config_hash{pedersen_ptr: HashBuiltin*}(general_config_ptr: General
         let (hash_state_ptr) = hash_update_single(
             hash_state_ptr, general_config_ptr.data_availability_mode
         );
+        let (hash_state_ptr) = hash_update_single(
+            hash_state_ptr, general_config_ptr.is_risk_by_balance_only
+        );
 
-        static_assert GeneralConfig.SIZE == 9;
+        static_assert GeneralConfig.SIZE == 10;
         static_assert CollateralAssetInfo.SIZE == 2;
         static_assert FeePositionInfo.SIZE == 2;
         let (hash) = hash_finalize(hash_state_ptr);

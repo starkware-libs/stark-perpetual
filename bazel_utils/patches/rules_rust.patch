@@ -1,0 +1,16 @@
+diff --git a/cargo/private/cargo_build_script_wrapper.bzl b/cargo/private/cargo_build_script_wrapper.bzl
+index b4bd42f..6f3c17d 100644
+--- a/cargo/private/cargo_build_script_wrapper.bzl
++++ b/cargo/private/cargo_build_script_wrapper.bzl
+@@ -13,7 +13,10 @@ def cargo_build_script(
+         crate_features = [],
+         version = None,
+         deps = [],
+-        build_script_env = {},
++        build_script_env = {
++            "LIBCLANG_PATH": "../../../../../../../external/llvm_toolchain_llvm/lib",
++            "BINDGEN_EXTRA_CLANG_ARGS": "-I../../../../../../../external/llvm_toolchain_llvm/lib/clang/12.0.0/include",
++        },
+         data = [],
+         tools = [],
+         links = None,

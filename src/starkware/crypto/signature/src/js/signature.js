@@ -69,7 +69,7 @@ function hasHexPrefix(str) {
 
 /*
  Full specification of the hash function can be found here:
-   https://starkware.co/starkex/docs/signatures.html#pedersen-hash-function
+   https://docs.starkware.co/starkex/crypto/pedersen-hash-function.html
  shiftPoint was added for technical reasons to make sure the zero point on the elliptic curve does
  not appear during the computation. constantPoints are multiples by powers of 2 of the constant
  points defined in the documentation.

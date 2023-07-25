@@ -89,7 +89,6 @@ func update_order_fulfillment(
 
     // The function's assumption means that 0 <= fulfilled_amount < AMOUNT_UPPER_BOUND.
     local fulfilled_amount;
-    let remaining_capacity = full_amount - fulfilled_amount;
     %{
         ids.fulfilled_amount = __dict_manager.get_dict(ids.orders_dict)[ids.order_id]
         # Prepare error_code in case of error. This won't affect the cairo logic.
@@ -99,6 +98,7 @@ func update_order_fulfillment(
             # If there's an error in this case, then it's because update_amount is negative.
             error_code = ids.PerpetualErrorCode.OUT_OF_RANGE_AMOUNT
     %}
+    let remaining_capacity = full_amount - fulfilled_amount;
 
     // Check that 0 <= update_amount <= full_amount - fulfilled_amount.
     // Note that we may have remaining_capacity < 0 in the case of a collision in the order_id.

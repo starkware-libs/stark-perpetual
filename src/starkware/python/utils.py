@@ -136,13 +136,11 @@ def get_build_dir_path(rel_path=""):
 
     if "RUNFILES_DIR" in os.environ:
         build_root = os.path.join(os.environ["RUNFILES_DIR"], "__main__")
-
     elif "BUILD_ROOT" in os.environ:
         build_root = os.environ["BUILD_ROOT"]
-
     else:
         assert DIR.endswith("starkware/python"), f"Wrong path : DIR = {DIR}"
-        build_root = climb(path=DIR, levels_to_climb=2)
+        build_root = climb(path=DIR, levels_to_climb=3)
 
     return os.path.join(build_root, rel_path)
 
@@ -152,6 +150,7 @@ def get_source_dir_path(rel_path: str = "", default_value: Optional[str] = None)
     Returns a path to a file inside the source directory. Does not work in docker.
     rel_path is the relative path of the file with respect to the source directory.
     """
+
     if "BUILD_ROOT" in os.environ:
         source_root = os.path.join(os.environ["BUILD_ROOT"], "../../")
         assert os.path.exists(os.path.join(source_root, "src"))
@@ -167,6 +166,26 @@ def get_source_dir_path(rel_path: str = "", default_value: Optional[str] = None)
         return default_value
 
     raise Exception(f"Failed to get source path for {rel_path}.")
+
+
+def deduce_absolute_path(path: str) -> str:
+    """
+    Returns the given path if it is absolute, and otherwise joins it with the current working
+    directory.
+    This function is useful when using Bazel, which changes the current working directory.
+
+    Important note: This function assumes that the code is being run using Bazel.
+    """
+
+    if os.path.isabs(path):
+        return path
+
+    # The path is considered to be relative to the current working directory.
+    build_working_directory = os.getenv("BUILD_WORKING_DIRECTORY")
+    assert (
+        build_working_directory is not None
+    ), "Could not deduce your working directory path; please run your code using Bazel."
+    return os.path.join(build_working_directory, path)
 
 
 def assert_same_and_get(*args):

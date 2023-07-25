@@ -9,6 +9,7 @@ from starkware.cairo.common.dict_access import DictAccess
 from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.serialize import serialize_array
 
+// These constants are used to indicate the data availability mode of the system.
 const VALIDIUM_MODE = 0;
 const ROLLUP_MODE = 1;
 

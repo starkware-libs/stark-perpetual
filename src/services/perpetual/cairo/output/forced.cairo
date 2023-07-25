@@ -29,7 +29,8 @@ func forced_withdrawal_action_new(public_key, position_id, amount) -> (
     // (fp_val - 2 points to the end of the function arguments in the stack).
     return (
         forced_withdrawal_action=cast(
-        fp_val - 2 - ForcedWithdrawalAction.SIZE, ForcedWithdrawalAction*),
+            fp_val - 2 - ForcedWithdrawalAction.SIZE, ForcedWithdrawalAction*
+        ),
     );
 }
 

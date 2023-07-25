@@ -9,7 +9,6 @@ from starkware.python.utils import from_bytes
 LIMIT_ORDER_WITH_FEES = 3
 TRANSFER = 4
 CONDITIONAL_TRANSFER = 5
-WITHDRAWAL = 6
 WITHDRAWAL_TO_ADDRESS = 7
 
 
@@ -163,47 +162,6 @@ def get_transfer_msg_without_bounds(
     return hash_function(msg, packed_message1)
 
 
-def get_withdrawal_msg(
-    asset_id_collateral: int,
-    position_id: int,
-    nonce: int,
-    expiration_timestamp: int,
-    amount: int,
-    hash_function: Callable[[VarArg(int)], int] = pedersen_hash,
-) -> int:
-    assert 0 <= asset_id_collateral < 2**250
-    assert 0 <= nonce < 2**32
-    assert 0 <= position_id < 2**64
-    assert 0 <= expiration_timestamp < 2**32
-    assert 0 <= amount < 2**64
-
-    return get_withdrawal_msg_without_bounds(
-        asset_id_collateral,
-        position_id,
-        nonce,
-        expiration_timestamp,
-        amount,
-        hash_function=hash_function,
-    )
-
-
-def get_withdrawal_msg_without_bounds(
-    asset_id_collateral: int,
-    position_id: int,
-    nonce: int,
-    expiration_timestamp: int,
-    amount: int,
-    hash_function: Callable[[VarArg(int)], int] = pedersen_hash,
-) -> int:
-    packed_message = WITHDRAWAL
-    packed_message = packed_message * 2**64 + position_id
-    packed_message = packed_message * 2**32 + nonce
-    packed_message = packed_message * 2**64 + amount
-    packed_message = packed_message * 2**32 + expiration_timestamp
-    packed_message = packed_message * 2**49  # Padding.
-    return hash_function(asset_id_collateral, packed_message)
-
-
 def get_withdrawal_to_address_msg(
     asset_id_collateral: int,
     position_id: int,
@@ -353,7 +311,6 @@ def get_limit_order_msg_without_bounds(
 def get_price_msg(
     oracle_name: int, asset_pair: int, timestamp: int, price: int, hash_function=pedersen_hash
 ):
-
     assert 0 <= oracle_name < 2**40
     assert 0 <= asset_pair < 2**128
     assert 0 <= timestamp < 2**32

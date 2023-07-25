@@ -49,14 +49,13 @@ func withdrawal_hash(pedersen_ptr: HashBuiltin*, withdrawal: Withdrawal*, asset_
     alloc_locals;
     local packed_message0;
     local packed_message1;
-    // If owner_key is equal to public key, this is a withdrawal of the old API and therefore the
-    // transaction type id is different and the owner_key is not part of the message.
-    local has_address = withdrawal.owner_key - withdrawal.base.public_key;
     local pedersen_ptr1: HashBuiltin*;
     const WITHDRAWAL = 6;
     const WITHDRAWAL_TO_OWNER_KEY = 7;
 
-    if (has_address == 0) {
+    // If owner_key is equal to public key, this is a withdrawal of the old API and therefore the
+    // transaction type id is different and the owner_key is not part of the message.
+    if (withdrawal.owner_key == withdrawal.base.public_key) {
         packed_message0 = asset_id_collateral;
         packed_message1 = WITHDRAWAL;
         pedersen_ptr1 = pedersen_ptr;

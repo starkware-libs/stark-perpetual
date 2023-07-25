@@ -369,7 +369,8 @@ func execute_batch(
     local time_bounds: TimeBounds;
     assert time_bounds.min_time = (
         carried_state.system_time -
-        program_input.general_config.timestamp_validation_config.price_validity_period);
+        program_input.general_config.timestamp_validation_config.price_validity_period
+    );
     assert time_bounds.max_time = end_system_time;
 
     // Validate minimal and maximal oracle price signatures. Refer to the documentation of
