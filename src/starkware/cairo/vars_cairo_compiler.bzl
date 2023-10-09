@@ -1,1 +1,1 @@
-CAIRO_COMPILER_ARCHIVE = "cairo-compiler-archive-2"
+CAIRO_COMPILER_ARCHIVE = "sierra-compiler-major-1"

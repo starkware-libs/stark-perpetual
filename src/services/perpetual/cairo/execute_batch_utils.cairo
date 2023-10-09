@@ -75,6 +75,9 @@ func validate_funding_indices_in_general_config(
 
 // Validates that the risk factor segments are ordered by their upper bounds, and that every risk
 // factor is in range.
+//
+// Assumptions:
+// 0 < n_risk_factor_segments.
 func validate_risk_factor_function{range_check_ptr}(
     risk_factor_segments: RiskFactorSegment*, n_risk_factor_segments
 ) {

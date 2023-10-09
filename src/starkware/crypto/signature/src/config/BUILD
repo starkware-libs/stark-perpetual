@@ -1,3 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["keys_precomputed.json"])
+exports_files([
+    "keys_precomputed.json",
+    "assets_precomputed.json",
+])

@@ -130,17 +130,18 @@ def get_build_dir_path(rel_path=""):
     """
     Returns a path to a file inside the build directory (or the docker).
 
-    rel_path is the relative path of the file with respect to the build
-    directory.
+    rel_path is the relative path of the file with respect to the build directory, e.g.:
+    src/starkware/python/utils.py.
     """
 
-    if "RUNFILES_DIR" in os.environ:
-        build_root = os.path.join(os.environ["RUNFILES_DIR"], "__main__")
-    elif "BUILD_ROOT" in os.environ:
-        build_root = os.environ["BUILD_ROOT"]
-    else:
+    if os.environ.get("BAZEL_CONTEXT") == "false":
         assert DIR.endswith("starkware/python"), f"Wrong path : DIR = {DIR}"
         build_root = climb(path=DIR, levels_to_climb=3)
+    else:
+        from bazel_tools.tools.python.runfiles import runfiles
+
+        r = runfiles.Create()
+        build_root = r.Rlocation("__main__")
 
     return os.path.join(build_root, rel_path)
 
@@ -448,6 +449,14 @@ def from_bytes(
         signed = False
 
     return int.from_bytes(value, byteorder=byte_order, signed=signed)
+
+
+def hex_to_bytes(hex_str: str) -> bytes:
+    hex_chars = hex_str.replace("0x", "").lower()
+    assert set(hex_chars).issubset(set("0123456789abcdef")), f"Invalid hex string: {hex_str}."
+    if len(hex_chars) % 2 == 1:
+        hex_chars = "0" + hex_chars
+    return bytes.fromhex(hex_chars)
 
 
 def blockify(data, chunk_size: int) -> Iterable:

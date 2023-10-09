@@ -36,7 +36,10 @@ def pytest_test(
         main = "//bazel_utils:pytest_wrapper.py",
         # Args passed to the tests using parser.addoption() need to be sent after the tested
         #   files so pytest recognizes them.
-        args = ["$(location :%s)" % x for x in srcs] + ["--color=yes", "--junitxml=$$XML_OUTPUT_FILE"] + args,
+        args = [
+            "$(location :%s)" % x
+            for x in srcs
+        ] + ["--color=yes", "--junitxml=$$XML_OUTPUT_FILE", "--strict-markers"] + args,
         python_version = "PY3",
         srcs_version = "PY3",
         deps = deps + [requirement("pytest"), "//:starkware"],

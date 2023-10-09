@@ -56,7 +56,7 @@ pyrsistent==0.18.1
 pytest==7.1.1
 pytest-asyncio==0.18.3
 pytest-cov==2.10.1
-PyYAML==6.0
+PyYAML==6.0.1
 requests==2.27.1
 rlp==2.0.1
 setuptools==60.9.3

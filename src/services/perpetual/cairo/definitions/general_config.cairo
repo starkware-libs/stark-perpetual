@@ -1,3 +1,4 @@
+from services.perpetual.cairo.definitions.constants import BALANCE_UPPER_BOUND, PRICE_UPPER_BOUND
 from starkware.cairo.common.math import assert_le, assert_lt, assert_nn_le
 
 // Information about the unique collateral asset of the system.
@@ -54,6 +55,10 @@ func get_risk_factor{range_check_ptr}(
     alloc_locals;
     local segment_idx;
     local amount;
+
+    assert_nn_le(abs_balance, BALANCE_UPPER_BOUND - 1);
+    assert_nn_le(price, PRICE_UPPER_BOUND - 1);
+
     if (is_risk_by_balance_only != 0) {
         amount = abs_balance;
     } else {
@@ -70,11 +75,11 @@ func get_risk_factor{range_check_ptr}(
         ids.segment_idx = i
     %}
     assert_nn_le(segment_idx, n_risk_factor_segments - 1);
+    let segment = risk_factor_segments + segment_idx * RiskFactorSegment.SIZE;
     if (segment_idx != 0) {
-        let previous_segment = risk_factor_segments + (segment_idx - 1) * RiskFactorSegment.SIZE;
+        let previous_segment = segment - RiskFactorSegment.SIZE;
         assert_lt(previous_segment.upper_bound, amount);
     }
-    let segment = risk_factor_segments + segment_idx * RiskFactorSegment.SIZE;
     assert_le(amount, segment.upper_bound);
     return segment.risk;
 }

@@ -1,0 +1,26 @@
+diff --git mdbx-sys/build.rs mdbx-sys/build.rs
+index 3bad6f1..d6e037a 100644
+--- mdbx-sys/build.rs
++++ mdbx-sys/build.rs
+@@ -86,8 +86,8 @@ fn main() {
+         .flag_if_supported("-Wbad-function-cast")
+         .flag_if_supported("-Wuninitialized");
+
+-    let flags = format!(
+-        "\"-NDEBUG={} {}\"",
++    let flags_content = format!(
++        "-NDEBUG={} {}",
+         u8::from(!cfg!(debug_assertions)),
+         cc_builder
+             .get_compiler()
+@@ -97,6 +97,10 @@ fn main() {
+             .trim()
+     );
+
++    let escaped_flags_content = flags_content.replace("\"", "\\\"");
++
++    let flags = format!("\"{}\"", escaped_flags_content);
++
+     cc_builder
+         .define("MDBX_BUILD_FLAGS", flags.as_str())
+         .define("MDBX_TXN_CHECKOWNER", "0");
